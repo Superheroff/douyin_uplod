@@ -20,5 +20,5 @@
 playwright codegen www.douyin.com --save-storage=cookie.json
 ```
 # 结尾
-qq交流群：916790180
-本源码只是出于学习交流的目的，非法使用与作者无关
+- qq交流群：916790180
+- 本源码只是出于学习交流的目的，非法使用与作者无关
