@@ -31,7 +31,7 @@ python -m playwright install
 playwright codegen www.douyin.com --save-storage=cookie.json
 ```
 - ffmpeg需要添加到环境变量，如不添加需要修改`ffmpeg.exe`目录`ctrl+左键点击ffmpeg`进入，把`executable='ffmpeg.exe'`修改成你`下载ffmpeg`的目录
-`
+
 ```python
 def __init__(
         self, executable=r'E:\ffmpeg\ffmpeg-5.0.1-essentials_build\bin\ffmpeg.exe', global_options=None, inputs=None, outputs=None
