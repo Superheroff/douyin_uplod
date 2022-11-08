@@ -14,6 +14,8 @@
 - apscheduler
 
 # 前期准备
+- 微软[azure注册](https://azure.microsoft.com/zh-cn/products/cognitive-services/text-to-speech/)
+- 没有海外卡的同学，淘宝搜索`微软azure注册`
 - 准备至少2个临时视频片段，最好可以循环重复的静音视频
 - 安装python
 - 安装playwright、ffmpeg、apscheduler，执行以下命令
