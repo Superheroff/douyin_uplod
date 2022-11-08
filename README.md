@@ -17,6 +17,7 @@
 - 准备至少2个临时视频片段，最好可以循环重复的静音视频
 - 安装python
 - 安装playwright、ffmpeg、apscheduler，执行以下命令
+- 下载[ffmpeg](http://ffmpeg.org/download.html)
 
 ```python
 pip install apscheduler
@@ -29,8 +30,8 @@ python -m playwright install
 ```python
 playwright codegen www.douyin.com --save-storage=cookie.json
 ```
-- ffmpeg需要添加到环境变量，如不添加需要修改`ffmpeg.exe`目录`ctrl+左键点击ffmpeg`进入，把`executable='ffmpeg.exe'`修改成你指定的目录
-
+- ffmpeg需要添加到环境变量，如不添加需要修改`ffmpeg.exe`目录`ctrl+左键点击ffmpeg`进入，把`executable='ffmpeg.exe'`修改成你`下载ffmpeg`的目录
+`
 ```python
 def __init__(
         self, executable=r'E:\ffmpeg\ffmpeg-5.0.1-essentials_build\bin\ffmpeg.exe', global_options=None, inputs=None, outputs=None
