@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from playwright.async_api import Playwright, async_playwright
+from apscheduler.schedulers.blocking import BlockingScheduler
 import time
 import datetime
 import requests
@@ -14,7 +15,7 @@ class set_video(object):
     def __init__(self):
         self.text = ''  # 视频标题
         self.tp = 0  # 存储单双号
-        self.path = r'C:\Users\Administrator\Desktop\windows'  # 资源目录
+        self.path = r'C:\Users\Administrator\Desktop\windows\audio'  # 资源目录
 
     def s_video(self):
         """
@@ -41,7 +42,6 @@ class set_video(object):
             self.text = text
             self.g_audio()
         self.text = _date + t + '%s  -来自：小卤蛋机器人自动合成并发布' % text
-
 
     def g_video(self):
         """
@@ -76,7 +76,7 @@ class set_audio(set_video):
         :return:
         """
         uri = 'https://eastus.api.cognitive.microsoft.com/sts/v1.0/issueToken'
-        apiKey = ""  # 微软云key 自己申请下
+        apiKey = ""  # 微软云key
         header = {
             'Ocp-Apim-Subscription-Key': apiKey,
             'Host': 'eastus.api.cognitive.microsoft.com',
@@ -109,7 +109,6 @@ class set_audio(set_video):
         background.set('fadeout', '3000')  # 设置背景音乐 淡出
         voice = ElementTree.SubElement(body, 'voice')
 
-
         voice.set('name', 'zh-CN-%sNeural' % voice_name)
         mstts = ElementTree.SubElement(voice, 'mstts:express-as')
         mstts.set('style', style)
@@ -119,9 +118,9 @@ class set_audio(set_video):
         # print('self.text', self.text)
 
         header = {"Content-type": "application/ssml+xml",
-                   "X-Microsoft-OutputFormat": "riff-24khz-16bit-mono-pcm",
-                   "Authorization": "Bearer " + accesstoken,
-                   "User-Agent": "TTSForPython"}
+                  "X-Microsoft-OutputFormat": "riff-24khz-16bit-mono-pcm",
+                  "Authorization": "Bearer " + accesstoken,
+                  "User-Agent": "TTSForPython"}
 
         uri = 'https://westus.tts.speech.microsoft.com/cognitiveservices/v1'
         res = requests.post(uri, data=ElementTree.tostring(body), headers=header).content
@@ -139,9 +138,7 @@ class pw(set_audio):
     def __init__(self):
         super(pw, self).__init__()
 
-
     async def upload(self, playwright: Playwright) -> None:
-
         browser = await playwright.chromium.launch(headless=False)
 
         context = await browser.new_context(storage_state=self.path + "\\cookie.json")
@@ -162,7 +159,8 @@ class pw(set_audio):
 
         await page.locator('xpath=//*[@id="root"]/div/div/div[2]/div[1]/div[1]/div/div[1]/div[1]/div').fill(
             self.text)
-        time.sleep(20)
+        # 视频越大间隔应越长
+        time.sleep(30)
         await page.locator(
             'xpath=//*[@id="root"]//div/button[@class="button--1SZwR primary--1AMXd fixed--3rEwh"]').click()
         await page.wait_for_timeout(6000)
@@ -176,8 +174,14 @@ class pw(set_audio):
             await self.upload(playwright)
 
 
-if __name__ == '__main__':
+def job_1():
     app = pw()
     app.s_video()
     app.g_video()
     asyncio.run(app.main())
+
+if __name__ == '__main__':
+    scheduler = BlockingScheduler(timezone='Asia/Shanghai')
+    scheduler.add_job(job_1, 'cron', day='1-31', hour='12', minute='11')
+    scheduler.start()
+
