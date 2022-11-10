@@ -182,6 +182,6 @@ def job_1():
 
 if __name__ == '__main__':
     scheduler = BlockingScheduler(timezone='Asia/Shanghai')
-    scheduler.add_job(job_1, 'cron', day='1-31', hour='12', minute='11')
+    scheduler.add_job(job_1, 'cron', day='1-31', hour='5', minute='20', misfire_grace_time=180)
     scheduler.start()
 
