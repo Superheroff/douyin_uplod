@@ -41,6 +41,38 @@ def __init__(
         self, executable=r'E:\ffmpeg\ffmpeg-5.0.1-essentials_build\bin\ffmpeg.exe', global_options=None, inputs=None, outputs=None
     )
 ```
+# 改进建议
+**此程序有非常多的待改善部分，可玩性非常高，示例如下：**
+- 如何判断视频是否发送成功呢，当然不是傻等了
+    - 方式一通过`page.wait_for_url()`
+    ```python
+    try:
+        await page.wait_for_url("https://creator.douyin.com/creator-micro/content/manage",
+                                timeout=1500)
+        print("视频发布成功")
+    except Exception as e:
+        print("判断视频是否发布成功")
+    ```
+    - 方式二通过获取网页的msg消息
+    ```python
+    await page.locator('button.button--1SZwR:nth-child(1)').click()
+    msg = await page.locator('//*[@class="semi-toast-content-text"]').all_text_contents()
+                            for msg_txt in msg:
+                                print("实时消息：" + msg_txt)
+    ```
+- 如何判断用户是否登录了呢
+    - 通过登录按钮判断，未登录会有登录按钮，登录了就没有登录按钮
+    ```python
+        try:
+            await page.goto("https://creator.douyin.com/creator-micro/content/upload")
+            await page.locator(".login").click(timeout=1500)
+            print("未登录")
+        except Exception as e:
+            print("已登录")
+    ```
+
+
+
 # 结尾
 - qq交流群：916790180
 - 本源码只是出于学习交流的目的，非法使用发送不良视频等与作者无关
