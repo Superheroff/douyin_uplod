@@ -44,7 +44,7 @@ def __init__(
 # 改进建议
 **此程序有非常多的待改善部分，可玩性非常高，示例如下：**
 - 改进一：如何判断视频是否发送成功呢，当然不是傻等了
-    - 方式一通过`page.wait_for_url()`
+    - 方式一：通过`page.wait_for_url()`
     ```python
     try:
         await page.wait_for_url("https://creator.douyin.com/creator-micro/content/manage",
@@ -53,7 +53,7 @@ def __init__(
     except Exception as e:
         print("判断视频是否发布成功")
     ```
-    - 方式二通过获取网页的msg消息
+    - 方式二：通过获取网页的msg消息
     ```python
     await page.locator('button.button--1SZwR:nth-child(1)').click()
     msg = await page.locator('//*[@class="semi-toast-content-text"]').all_text_contents()
@@ -72,7 +72,7 @@ def __init__(
     ```
 - 改进三：如何添加话题？
     - 分析：首先要从文件名中取出文件名字并把`#xx `这种格式的取出来，然后剩余的部分作为视频标题
-    - 查看下面代码
+    - 参考下面代码
     ```python
     import re
     video_desc = "#风景 #夕阳 落霞与孤鹜齐飞，秋水共长天一色"
