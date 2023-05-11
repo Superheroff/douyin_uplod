@@ -43,7 +43,7 @@ def __init__(
 ```
 # 改进建议
 **此程序有非常多的待改善部分，可玩性非常高，示例如下：**
-- 如何判断视频是否发送成功呢，当然不是傻等了
+- 改进一：如何判断视频是否发送成功呢，当然不是傻等了
     - 方式一通过`page.wait_for_url()`
     ```python
     try:
@@ -60,7 +60,7 @@ def __init__(
                             for msg_txt in msg:
                                 print("实时消息：" + msg_txt)
     ```
-- 如何判断用户是否登录了呢
+- 改进二：如何判断用户是否登录了呢？
     - 通过登录按钮判断，未登录会有登录按钮，登录了就没有登录按钮
     ```python
         try:
@@ -70,7 +70,28 @@ def __init__(
         except Exception as e:
             print("已登录")
     ```
-
+- 改进三：如何添加话题？
+    - 分析：首先要从文件名中取出文件名字并把`#xx `这种格式的取出来，然后剩余的部分作为视频标题
+    - 查看下面代码
+    ```
+    import re
+    video_desc = "#风景 #夕阳 落霞与孤鹜齐飞，秋水共长天一色"
+    r = r"#.* "
+    rs = re.search(r, video_desc).group()
+    video_desc_tag = rs[:-1].split(" ")  # ["#风景", "#夕阳"]
+    video_desc2 = video_desc[len(rs):]  # 落霞与孤鹜齐飞，秋水共长天一色
+    
+    css_selector = ".zone-container"
+    tag_index = 0
+    for tag in video_desc_tag:
+    tag_index += 1
+        print("正在添加第%s个话题" % tag_index)
+        await page.type(css_selector, tag)
+        await page.press(css_selector, "Space")
+    await page.type(css_selector, video_desc2)
+    print("视频标题输入完毕，等待发布")
+    ```
+![示例图片](https://raw.githubusercontent.com/Superheroff/douyin_uplod/main/tag.png)
 
 
 # 结尾
