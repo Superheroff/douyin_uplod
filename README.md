@@ -73,6 +73,7 @@ def __init__(
 - 改进三：如何添加话题？
     - 分析：首先要从视频文件中取出视频名并把`#xx `这种格式的取出来，然后剩余的部分作为视频标题
     - 参考下面代码
+    - 此方式不完美，只支持话题在前面的，否则会报错
     ```python
     import re
     video_desc = "#风景 #夕阳 落霞与孤鹜齐飞，秋水共长天一色"
@@ -89,6 +90,34 @@ def __init__(
         await page.type(css_selector, tag)
         await page.press(css_selector, "Space")
     await page.type(css_selector, video_desc2)
+    print("视频标题输入完毕，等待发布")
+    ```
+    - 完美解决方式，不管话题在前面或者后面或者中间或者无话题或者N个话题都完美适用
+    ```python
+    video_desc = video_desc_list2[1]
+    video_desc_tag = []
+    tag_rs = re.findall(r"(#.*? )", video_desc)
+    if len(tag_rs) > 0:
+        if len(tag_rs) > 1:
+            video_desc = video_desc[:-1]
+        video_desc_tag = video_desc.split(" ")
+        print("该视频有话题")
+    else:
+        video_desc_tag.append(video_desc)
+        print("该视频没有检测到话题")
+    tag_index = 0
+    for tag in video_desc_tag:
+        tag_index += 1
+        if tag.find("#") > 0:  # 代表话题在中间的处理方式
+            print("正在添加第%s个话题" % tag_index)
+            await page.type(css_selector, tag)
+            await page.press(css_selector, "Space")
+        elif tag.find("#") == 0:  # 代表话题在前面或者后面的处理方式
+            print("正在添加第%s个话题" % tag_index)
+            await page.type(css_selector, tag_rs[tag_index - 1])
+            await page.press(css_selector, "Space")
+        elif tag.find("#") == -1:  # 代表无话题的处理方式
+            await page.type(css_selector, tag)
     print("视频标题输入完毕，等待发布")
     ```
 ![示例图片](https://raw.githubusercontent.com/Superheroff/douyin_uplod/main/tag.png)
