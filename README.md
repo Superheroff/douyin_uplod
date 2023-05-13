@@ -85,7 +85,7 @@ def __init__(
     css_selector = ".zone-container"
     tag_index = 0
     for tag in video_desc_tag:
-    tag_index += 1
+        tag_index += 1
         print("正在添加第%s个话题" % tag_index)
         await page.type(css_selector, tag)
         await page.press(css_selector, "Space")
