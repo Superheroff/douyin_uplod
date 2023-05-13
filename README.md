@@ -94,7 +94,7 @@ def __init__(
     ```
     - 完美解决方式，不管话题在前面或者后面或者中间或者无话题或者N个话题都完美适用
     ```python
-    video_desc = video_desc_list2[1]
+    video_desc = "#我是前面的话题1 #我是前面的话题2 落霞与孤鹜齐飞#我是中间的话题1 秋水共#我是中间的话题2长天一色#我是后面的话题1 #我是后面的话题2"
     video_desc_tag = []
     tag_rs = re.findall(r"(#.*? )", video_desc)
     if len(tag_rs) > 0:
