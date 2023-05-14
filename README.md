@@ -120,6 +120,27 @@ def __init__(
             await page.type(css_selector, tag)
     print("视频标题输入完毕，等待发布")
     ```
+    - 是我想复杂了，直接按空格分割即可，参考下面示例
+    ```python
+    video_desc = "#前面话题1 #前面话题2 落霞与孤鹜齐飞#中间话题1 秋水共#中间话题2 长天一色#后面话题1 #后面话题2 "
+    video_desc_tag = []
+    tag_rs = re.findall(r"(#.*? )", video_desc)
+    if len(tag_rs) > 0:
+        if len(tag_rs) > 1:
+            video_desc = video_desc[:-1]
+        video_desc_tag = video_desc.split(" ")
+        print("该视频有话题")
+    else:
+        video_desc_tag.append(video_desc)
+        print("该视频没有检测到话题")
+    tag_index = 0
+    for tag in video_desc_tag:
+        tag_index += 1
+        print("正在添加第%s个话题" % tag_index)
+        await page.type(css_selector, tag)
+        await page.press(css_selector, "Space")
+    print("视频标题输入完毕，等待发布")
+    ```
 ![示例图片](https://raw.githubusercontent.com/Superheroff/douyin_uplod/main/tag.png)
 
 
