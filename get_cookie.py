@@ -105,7 +105,7 @@ class creator_douyin():
         #                                                )
         # else:
         browser = await playwright.chromium.launch(channel="chrome", headless=False,
-                                                   executable_path=self.path + self.chrome_path
+                                                   # executable_path=self.path + self.chrome_path
                                                    )
 
         context = await browser.new_context()
@@ -134,9 +134,9 @@ class creator_douyin():
             cookie_txt += i.get('name') + '=' + i.get('value') + '; '
         print("cookie", cookie_txt)
         if self.is_v:
-            with open(self.path + "\\cookie\\" + self.phone + ".txt", mode="w") as f:
+            with open(self.path + "\\" + self.phone + ".txt", mode="w") as f:
                 f.write(cookie_txt)
-            await context.storage_state(path=self.path + "\\cookie\\" + self.desc)
+            await context.storage_state(path=self.path + "\\" + self.desc)
         await context.close()
         await browser.close()
 
