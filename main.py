@@ -60,7 +60,8 @@ class set_video(object):
         ff = FFmpeg(
             inputs={video_path: None, audio_path: None},
             outputs={output_path: '-map 0:v -map 1:a -c:v copy -c:a aac -shortest'},
-            global_options='-stream_loop -1'  # 全局参数 视频时长小于音乐时长时将循环视频
+            global_options='-stream_loop -1',  # 全局参数 视频时长小于音乐时长时将循环视频
+            executable=r'E:\ffmpeg\ffmpeg-5.0.1-essentials_build\bin\ffmpeg.exe'
         )
 
         ff.run()
