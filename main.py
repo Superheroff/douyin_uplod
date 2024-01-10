@@ -144,6 +144,22 @@ class douyin(object):
                    "Cronet/TTNetVersion:b4d74d15 2020-04-23 QuicVersion:0144d358 2020-03-24)"
         }
 
+    def get_web_cookie(self):
+        """
+        获取cookie
+        :return:
+        """
+        url = 'http://api2.52jan.com/dyapi/get_cookie/v2'
+        ts = str(time.time()).split('.')[0]
+        header = {
+            'cid': self.cid,
+            'timestamp': ts,
+            'user-agent': 'okhttp/3.10.0.12'
+        }
+        sign = self.set_sign()
+        resp = requests.post(url, data={'sign': sign}, headers=header).json()
+        return resp['data'][0]['cookie']
+
     def get_appkey(self):
         data = self.cid + '5c6b8r9a'
         return hashlib.sha256(data.encode('utf-8')).hexdigest()
@@ -231,7 +247,7 @@ class douyin(object):
             "Sec-Fetch-Dest": "empty",
             "Referer": "https://www.douyin.com/music/" + music_id,
             "Accept-Language": "zh-CN,zh;q=0.9",
-            "Cookie": "xgplayer_user_id=459752888030; pwa2=%223%7C0%7C3%7C1%22; passport_assist_user=CkGyBn6eg6zjcpMET_gHfmAf_TtK5p4ATeyNqMCnJiSyp3G-MdP53rUjgWZhWERMfhBYJ7tlXgWZ7jucLWGtE4PtVxpICjxXsqVzyUTBpdMnLIDRi5dvpas0rR82r0qc4cLRrFyu15Wh0g38ku3L0uRYSxbGIvAHPxZ9ncBkSkBEyjYQp-21DRiJr9ZUIgEDg_DXCw%3D%3D; sso_uid_tt=9dffe4dba6a6c536890ab0676b9b7ba2; sso_uid_tt_ss=9dffe4dba6a6c536890ab0676b9b7ba2; toutiao_sso_user=1764d3273a42231c9c6677ce8008f93b; toutiao_sso_user_ss=1764d3273a42231c9c6677ce8008f93b; LOGIN_STATUS=1; store-region=cn-jx; store-region-src=uid; __live_version__=%221.1.1.1853%22; my_rd=2; ttwid=1%7Cq4SP8Zou26ZvkihgcgQ1GXXpu9ztUlyp2CzWTDyx84o%7C1699872368%7C4fc1d73151991074d38b6d45a000d594a38a40584ae6ddabad40c850ed03bdb3; odin_tt=9494fb81f9c287d8518169efd75a7c74c649c19906587635766fabb5c18079ab775ffbfc9e0a77e0bfde886739516c1d; sid_ucp_sso_v1=1.0.0-KGE4M2Q5YzlhYTEwMGMyNzE4MzRiYmIyN2Q2MTk5MTgzMjAyOTI5NGUKHwj4ueCXiPTvAhCe-deqBhjvMSAMMK3goPgFOAZA9AcaAmxmIiAxNzY0ZDMyNzNhNDIyMzFjOWM2Njc3Y2U4MDA4ZjkzYg; ssid_ucp_sso_v1=1.0.0-KGE4M2Q5YzlhYTEwMGMyNzE4MzRiYmIyN2Q2MTk5MTgzMjAyOTI5NGUKHwj4ueCXiPTvAhCe-deqBhjvMSAMMK3goPgFOAZA9AcaAmxmIiAxNzY0ZDMyNzNhNDIyMzFjOWM2Njc3Y2U4MDA4ZjkzYg; sid_guard=1764d3273a42231c9c6677ce8008f93b%7C1700134046%7C5184001%7CMon%2C+15-Jan-2024+11%3A27%3A27+GMT; uid_tt=9dffe4dba6a6c536890ab0676b9b7ba2; uid_tt_ss=9dffe4dba6a6c536890ab0676b9b7ba2; sid_tt=1764d3273a42231c9c6677ce8008f93b; sessionid=1764d3273a42231c9c6677ce8008f93b; sessionid_ss=1764d3273a42231c9c6677ce8008f93b; bd_ticket_guard_client_web_domain=2; s_v_web_id=verify_lqsxttbt_gXy5ddyz_BwZv_4eEB_8hHF_vEwLeEmJ2fYo; dy_swidth=1536; dy_sheight=864; FORCE_LOGIN=%7B%22videoConsumedRemainSeconds%22%3A180%7D; passport_csrf_token=0cb1deac0e53174e3ee1575c4e2388cc; passport_csrf_token_default=0cb1deac0e53174e3ee1575c4e2388cc; douyin.com; device_web_cpu_core=8; device_web_memory_size=8; architecture=amd64; csrf_session_id=a30df517c569ec0463ff6e2ea6311c3e; strategyABtestKey=%221704788190.67%22; volume_info=%7B%22isUserMute%22%3Afalse%2C%22isMute%22%3Atrue%2C%22volume%22%3A0.5%7D; __ac_signature=_02B4Z6wo00f01pZ-fkAAAIDBq9dk3Pp4of6WXnrAAMAOslG9amPQoCeDQ8cUza7yU.Rb.ZF5bNch-zFUhr-7UFOUP0fS1nDimzwGJQf4p8.Unah97KTARZJRGWe3T0PlKgEKFSnSzPTPKBqq76; bd_ticket_guard_client_data=eyJiZC10aWNrZXQtZ3VhcmQtdmVyc2lvbiI6MiwiYmQtdGlja2V0LWd1YXJkLWl0ZXJhdGlvbi12ZXJzaW9uIjoxLCJiZC10aWNrZXQtZ3VhcmQtcmVlLXB1YmxpYy1rZXkiOiJCRUZIQk5OSndxUU5JSkNTWSsyNWtOWC9SVVpDc0NPZ3VHdTBLMG5vVXBpeWJpSkEzU3FTakJHZmd0dGRxM2FZRFZrbytkeWtHL2pLb09FK2pzMjdQK3M9IiwiYmQtdGlja2V0LWd1YXJkLXdlYi12ZXJzaW9uIjoxfQ%3D%3D; xg_device_score=7.381583463336465; SEARCH_RESULT_LIST_TYPE=%22single%22; download_guide=%223%2F20240109%2F0%22; tt_scid=EwNKK20v8YCRpqoTO1b8O2OrzTMQcI5uVkhCBfb9..6TXEIIE9JFrXEX6MlO46wy7f34; msToken=ANr5MGvNqt9ZW7xysyENxKdEPLEeL2E8ovTD5w2kVIXUecLT2hGR2CtdoX9H8DcUmA5mbCnsjNCAfBf7rWjxfWItJABCWhbrQ-5DMeaH7RMmaDwKZNiWExJiDKSW; stream_player_status_params=%22%7B%5C%22is_auto_play%5C%22%3A0%2C%5C%22is_full_screen%5C%22%3A0%2C%5C%22is_full_webscreen%5C%22%3A0%2C%5C%22is_mute%5C%22%3A1%2C%5C%22is_speed%5C%22%3A1%2C%5C%22is_visible%5C%22%3A0%7D%22; IsDouyinActive=true; stream_recommend_feed_params=%22%7B%5C%22cookie_enabled%5C%22%3Atrue%2C%5C%22screen_width%5C%22%3A1536%2C%5C%22screen_height%5C%22%3A864%2C%5C%22browser_online%5C%22%3Atrue%2C%5C%22cpu_core_num%5C%22%3A8%2C%5C%22device_memory%5C%22%3A8%2C%5C%22downlink%5C%22%3A10%2C%5C%22effective_type%5C%22%3A%5C%224g%5C%22%2C%5C%22round_trip_time%5C%22%3A100%7D%22; home_can_add_dy_2_desktop=%221%22; msToken=X7t-JfesHFzGtWhp00GAQseZDZaEgJExCmd4f7wYdaxtCw3LPtU9hf4yFOrmfiez3No0Ip6tOsxtXNYS4jlIhA8pECK1A7V5pgkY-I914Zt_w11xjAmT-7ms0qI_"
+            "Cookie": self.get_web_cookie()
         }
         xbogus = self.get_web_xbogus(url, self.ua["web"])
         url += '&X-Bogus=' + xbogus['xbogus']
@@ -351,7 +367,7 @@ class upload_douyin(douyin):
             at_index = 0
             # 处理末尾标题
             video_desc_end = len(video_desc_tag) - 1
-            video_desc_tag[video_desc_end] = video_desc_tag[video_desc_end][:-2]
+            video_desc_tag[video_desc_end] = video_desc_tag[video_desc_end][:-1]
             for tag in video_desc_tag:
                 await page.type(css_selector, tag)
                 if "@" in tag:
