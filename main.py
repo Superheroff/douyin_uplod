@@ -6,8 +6,11 @@ import re
 import time
 
 import cv2
+import pandas as pd
 import requests
 from PIL import Image
+from apscheduler.schedulers.blocking import BlockingScheduler
+from ffmpy import FFmpeg
 from moviepy.editor import *
 from playwright.async_api import Playwright, async_playwright
 
@@ -29,12 +32,13 @@ def get_file_md5(file_path):
     return md5_obj.hexdigest()
 
 
-def merge_images_video(image_folder, output_file, video_path):
+def merge_images_video(image_folder, output_file, video_path, fps=None):
     """
     把图片合并成视频并添加背景音乐
     :param image_folder: 图片文件夹路径
     :param output_file: 输出视频文件路径
     :param video_path: 待提取背景音乐的视频文件路径
+    :param fps:
     :return:
     """
     # 获取文件夹内所有图片的列表
@@ -44,12 +48,13 @@ def merge_images_video(image_folder, output_file, video_path):
 
     # 获取第一张图片的大小作为视频分辨率
     first_img = Image.open(image_folder + image_list[0])
-
+    if fps is None:
+        fps = 30
     try:
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # MP4格式
-        videowrite = cv2.VideoWriter(output_file, fourcc, 30, first_img.size)
+        videowrite = cv2.VideoWriter(output_file, fourcc, fps, first_img.size)
         img_array = []
-        for filename in [r'./frames/{0}.jpg'.format(i) for i in range(19, index + 19)]:
+        for filename in [r'./frames/{0}.jpg'.format(i) for i in range(29, index + 29)]:
             img = cv2.imread(filename)
             if img is None:
                 print("is error!")
@@ -64,21 +69,32 @@ def merge_images_video(image_folder, output_file, video_path):
         videowrite.release()
 
         print('开始添加背景音乐！')
-        # 初始化视频文件对象
-        clip = VideoFileClip(video_path)
         # 从某个视频中提取一段背景音乐
-        audio = AudioFileClip(video_path).subclip(0, 83)
+        audio_sample_rate = 48000
+        audio_file = AudioFileClip(video_path, fps=audio_sample_rate)
         # 将背景音乐写入.mp3文件
         output_dir = "music/"
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         else:
             config.delete_all_files(output_dir)
-        audio.write_audiofile(output_dir + '/background.mp3')
-        # 向合成好的视频中添加背景音乐，需要同步秒数
+        audio = CompositeAudioClip([audio_file])
+        audio.write_audiofile(output_dir + '/background.mp3', fps=audio_sample_rate)
+        dd_path = output_file[:-5] + '3.mp4'
+        # 2种方案
+        # 方案一 使用moviepy，内存更小
+        clip = VideoFileClip(output_file)
         clip = clip.set_audio(audio)
-        # 保存视频
-        clip.write_videofile(output_file)
+        clip.write_videofile(dd_path)
+
+        # 方案二 使用ffmpeg，内存更大
+        # ff = FFmpeg(
+        #     inputs={output_file: None, output_dir + '/background.mp3': None},
+        #     outputs={dd_path: '-map 0:v -map 1:a -c:v copy -c:a aac -shortest'},
+        #     global_options='-stream_loop -1',  # 全局参数 视频时长小于音乐时长时将循环视频
+        #     # executable=r'E:\易语言\ffmpeg\ffmpeg-5.0.1-essentials_build\bin\ffmpeg.exe'
+        # )
+        # ff.run()
         print('背景音乐添加完成！')
 
     except Exception as e:
@@ -100,8 +116,8 @@ def set_video_frame(video_path):
     fps = video.get(cv2.CAP_PROP_FPS)
 
     # 设置要提取的帧数范围
-    start_frame = 19  # 起始帧，剔除前面20帧和结尾10帧
-    end_frame = frame_count - 11  # 结束帧
+    start_frame = 29  # 起始帧，剔除前面30帧和结尾20帧
+    end_frame = frame_count - 21  # 结束帧
 
     # 创建保存抽取帧的目录
     output_dir = 'frames/'
@@ -126,7 +142,8 @@ def set_video_frame(video_path):
     print("所有帧都已成功抽取！")
     # 关闭视频流
     video.release()
-    return fps
+
+    merge_images_video(os.path.abspath("") + "\\frames\\", video_path[:-4] + "2.mp4", video_path, fps)
 
 
 class douyin(object):
@@ -210,25 +227,30 @@ class douyin(object):
             res = requests.get(url, headers={"User-Agent": self.ua["app"]}).json()
             x = random.randint(0, len(res["music_list"]) - 1)
             music_list = res["music_list"][x]
-            self.title = f"-来自：榜单的第{(x + 1)}个音乐《{music_list['music_info']['title']}》"
+            self.title = f"-来自：音乐榜单的第{(x + 1)}个音乐《{music_list['music_info']['title']}》"
             self.ids = music_list["music_info"]["id_str"]
             return self.get_douyin_music_video()
         except Exception:
             logging.info("获取抖音Top50音乐榜单失败")
             return 2
 
-    def get_douyin_music_video(self, music_id=None):
+    def get_douyin_music_video(self, music_id=None, page=None):
         """
         根据音乐id获取音乐视频列表
         :param music_id:
+        :param page:
         :return:
         """
 
         if music_id is None:
             music_id = self.ids if self.ids else "7315704709279550259"
 
+        if page is None:
+            pages = [10, 20, 30, 40, 50, 60, 70, 80, 90]
+            page = random.choice(pages)
+
         url = f"https://www.douyin.com/aweme/v1/web/music/aweme/?device_platform=webapp&aid=6383&channel" \
-              f"=channel_pc_web&count=12&cursor=0&music_id={music_id}&pc_client_type=1&version_code=170400" \
+              f"=channel_pc_web&count=10&cursor={page}&music_id={music_id}&pc_client_type=1&version_code=170400" \
               f"&version_name=17.4.0&cookie_enabled=true&screen_width=1536&screen_height=864&browser_language=zh-CN" \
               f"&browser_platform=Win32&browser_name=Chrome&browser_version=120.0.0.0&browser_online=true&engine_name" \
               f"=Blink&engine_version=120.0.0.0&os_name=Windows&os_version=10&cpu_core_num=8&device_memory=8&platform" \
@@ -253,19 +275,28 @@ class douyin(object):
         url += '&X-Bogus=' + xbogus['xbogus']
         try:
             res = requests.get(url, headers=headers).json()
-            video_list = {}
-            if conigs.remove_enterprise:
-                for i in range(len(res["aweme_list"])):
-                    x = random.randint(0, len(res["aweme_list"]) - 1)
-                    video_list = res['aweme_list'][x]
-                    enterprise_verify_reason = video_list['author'].get("enterprise_verify_reason", "")
-                    if not enterprise_verify_reason:
-                        break
-                    else:
-                        print("已跳过企业号:" + enterprise_verify_reason)
+            verify_reason_values = []
+            video_duration_values = []
+            # 这里把要筛选的条件值加入到筛选列表当中
+            for i in res["aweme_list"]:
+                verify_reason_values.append(i["author"]["enterprise_verify_reason"])
+                video_duration_values.append(i["video"]["duration"])
+            verify_reason = {
+                "verify_reason": verify_reason_values,
+                "duration": video_duration_values
+            }
+            df = pd.DataFrame(verify_reason)
+            if conigs.remove_enterprise and conigs.remove_images:
+                # 筛选条件
+                jd = df[(df['verify_reason'] == "") & (df['duration'] >= (conigs.duration * 1000))]
+                print(jd)
+                dd = jd.sample()
+                # print(dd.index.values)
+                video_list = res['aweme_list'][dd.index.values[0]]
+            else:
+                video_list = res['aweme_list'][random.randint(0, len(res['aweme_list']) - 1)]
             uri = video_list["video"]["play_addr_h264"]["url_list"][0]
             nickname = video_list['author']['nickname']
-            # JSON.取通用属性 (“['aweme_list'][1].author['enterprise_verify_reason']”)
             # print(json.dumps(video_list))
             print("url:", uri)
             print("nickname:", nickname)
@@ -281,10 +312,12 @@ class douyin(object):
                 f.write(reb)
                 print("处理前md5：", get_file_md5(self.video_path))
                 print("正在处理视频")
-                clip = VideoFileClip(self.video_path)
-                clip.subclip(6, 18)  # 剪切
-                self.video_path = conigs.video_path + desc + "2.mp4"
-                clip.write_videofile(self.video_path)  # 保存视频
+                # clip = VideoFileClip(self.video_path)
+                # clip.subclip(10, 20)  # 剪切
+                set_video_frame(self.video_path)
+                # self.video_path这个文件名不能改，上传就是上传这个
+                self.video_path = conigs.video_path + desc + "3.mp4"
+                # clip.write_videofile(self.video_path)  # 保存视频
                 print("处理后md5：", get_file_md5(self.video_path))
                 print("视频处理完毕")
                 return 0
@@ -375,12 +408,17 @@ class upload_douyin(douyin):
                     print("正在添加第%s个想@的人" % at_index)
                     time.sleep(1)
                     try:
-                        await page.get_by_text(tag[1:], exact=True).click()
+                        await page.get_by_text(tag[1:], exact=True).click(timeout=6000)
                     except Exception as e:
-                        print(e)
-                        print("@未能成功")
-                    # await page.locator("div").filter(
-                    #     has_text=re.compile(r"^" + tag[1:] + "$")).first.click()
+                        logging.info(tag + "失败1")
+                        try:
+                            await page.locator("div").filter(
+                                has_text=re.compile(r"^" + tag[1:] + "$")).first.click()
+                        except Exception as e:
+                            logging.info(tag + "失败2")
+                            print(e)
+                            print(tag + "未能成功")
+
                 else:
                     tag_index += 1
                     await page.press(css_selector, "Space")
@@ -450,22 +488,27 @@ class upload_douyin(douyin):
         await browser.close()
 
     async def main(self):
+        msg = ["视频下载成功，等待发布", "视频下载失败", "音乐榜单获取失败"]
         async with async_playwright() as playwright:
             code = self.get_douyin_music()
+            print(msg[code])
+            logging.info(msg[code])
             if code == 0:
                 await self.upload(playwright)
-            elif code == 1:
-                print("视频下载失败")
-            elif code == 2:
-                print("音乐榜单获取失败")
-            else:
-                pass
+
+
+def run():
+    app = upload_douyin(60, conigs.cookie_path)
+    asyncio.run(app.main())
 
 
 if __name__ == '__main__':
-    # path = r"E:\python\douyin\发布小程序\video\#庐陵老街老赖陈万洵 @庐陵老街陈万洵 -来自：榜单的第36个音乐《爱丫爱丫》@𝐹𝑜𝑟𝑒𝑣𝑒𝑟✨ 的作品.mp4"
-    # fps = set_video_frame(path)
-    # print("fps:", fps)
-    # merge_images_video(os.path.abspath("") + "\\frames\\", r"E:\\python\\douyin\\发布小程序\\video\\output.mp4", path)
-    app = upload_douyin(60, conigs.cookie_path)
-    asyncio.run(app.main())
+    # run()
+    # path = r"E:\python\douyin\发布小程序\video\#老赖陈万洵 @1486323920 -来自：榜单的第25个音乐《Love Lee》@超级马立奥 的作品.mp4"
+    # set_video_frame(path)
+    # merge_images_video(os.path.abspath("") + "\\frames\\", path[:-4] + "2.mp4", path)
+
+    print("调度任务开始运行")
+    scheduler = BlockingScheduler(timezone='Asia/Shanghai')
+    scheduler.add_job(run, 'interval', minutes=30, misfire_grace_time=900)
+    scheduler.start()
