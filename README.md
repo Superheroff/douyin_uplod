@@ -1,6 +1,6 @@
 # 发布视频小程序V2.0
 ## 介绍
-- ~~这是[douyin_uplod](https://github.com/Superheroff/douyin_uplod)的升级版~~
+- 这是[douyin_uplod](https://github.com/Superheroff/douyin_uplod/tree/main)的升级版
 - 比`douyin_uplod`多了**添加话题**、**@人**、**视频抽帧**等功能
 
 ## 如何运行
