@@ -1,6 +1,6 @@
 # 发布视频小程序V2.0
 ## 介绍
-- ~~这是[douyin_uplod](https://github.com/Superheroff/douyin_uplod/tree/main)的升级版~~
+- ~~这是[douyin_uplod](https://github.com/Superheroff/douyin_uplod)的升级版~~
 - 比`douyin_uplod`多了**添加话题**、**@人**、**视频抽帧**等功能
 
 ## 如何运行
@@ -29,6 +29,16 @@ douyin_uplod
 ├── README.md
 └── requirements.txt # 依赖文件
 ```
+## 更新内容
+**2024.01.11**
+1. 优化处理视频
+2. 新增筛选：去除图集视频、去除时长过短的视频
+3. 优化音乐榜采集，增加随机翻页减少重复视频
+
+## 待优化
+- 识别擦边女，拒绝爬取擦边视频
+- 使用数据库彻底解决视频重复问题
+
 
 ## 运行逻辑
 - 每隔一小时随机从抖音热门音乐下随机选择任意一个作品下载并配上标题发布
