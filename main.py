@@ -152,8 +152,9 @@ class douyin(object):
         self.title = ""
         self.ids = ""
         self.video_path = ""
+        self.page = 0
         self.path = os.path.abspath('')
-        self.cid = "d9ba8ae07d955b83c3b04280f3dc5a4a"
+        self.cid = "5e5cdbc3f6163e728f80c0373a7d26fe"
         self.ua = {
             "web": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 "
                    "Safari/537.36",
@@ -227,30 +228,28 @@ class douyin(object):
             res = requests.get(url, headers={"User-Agent": self.ua["app"]}).json()
             x = random.randint(0, len(res["music_list"]) - 1)
             music_list = res["music_list"][x]
-            self.title = f"-来自：音乐榜单的第{(x + 1)}个音乐《{music_list['music_info']['title']}》"
+            self.title = f"—来自：音乐榜单的第{(x + 1)}个音乐《{music_list['music_info']['title']}》"
             self.ids = music_list["music_info"]["id_str"]
-            return self.get_douyin_music_video()
+            return self.get_filter()
         except Exception:
             logging.info("获取抖音Top50音乐榜单失败")
             return 2
 
-    def get_douyin_music_video(self, music_id=None, page=None):
+    def get_douyin_music_video(self, music_id=None):
         """
         根据音乐id获取音乐视频列表
         :param music_id:
-        :param page:
         :return:
         """
 
         if music_id is None:
             music_id = self.ids if self.ids else "7315704709279550259"
 
-        if page is None:
-            pages = [10, 20, 30, 40, 50, 60, 70, 80, 90]
-            page = random.choice(pages)
+        pages = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
+        self.page = random.choice(pages)
 
         url = f"https://www.douyin.com/aweme/v1/web/music/aweme/?device_platform=webapp&aid=6383&channel" \
-              f"=channel_pc_web&count=10&cursor={page}&music_id={music_id}&pc_client_type=1&version_code=170400" \
+              f"=channel_pc_web&count=10&cursor={self.page}&music_id={music_id}&pc_client_type=1&version_code=170400" \
               f"&version_name=17.4.0&cookie_enabled=true&screen_width=1536&screen_height=864&browser_language=zh-CN" \
               f"&browser_platform=Win32&browser_name=Chrome&browser_version=120.0.0.0&browser_online=true&engine_name" \
               f"=Blink&engine_version=120.0.0.0&os_name=Windows&os_version=10&cpu_core_num=8&device_memory=8&platform" \
@@ -277,54 +276,85 @@ class douyin(object):
             res = requests.get(url, headers=headers).json()
             verify_reason_values = []
             video_duration_values = []
+            remove_custom_verify = []
             # 这里把要筛选的条件值加入到筛选列表当中
             for i in res["aweme_list"]:
                 verify_reason_values.append(i["author"]["enterprise_verify_reason"])
                 video_duration_values.append(i["video"]["duration"])
+                remove_custom_verify.append(i["author"]["custom_verify"])
             verify_reason = {
                 "verify_reason": verify_reason_values,
-                "duration": video_duration_values
+                "duration": video_duration_values,
+                "custom_verify": remove_custom_verify
             }
             df = pd.DataFrame(verify_reason)
-            if conigs.remove_enterprise and conigs.remove_images:
-                # 筛选条件
-                jd = df[(df['verify_reason'] == "") & (df['duration'] >= (conigs.duration * 1000))]
-                print(jd)
-                dd = jd.sample()
-                # print(dd.index.values)
-                video_list = res['aweme_list'][dd.index.values[0]]
+            if conigs.remove_enterprise and conigs.remove_images and conigs.remove_custom_verify:
+                # 判断是否满足所有条件
+                jd = df[(df['verify_reason'] == "") & (df['duration'] >= (conigs.duration * 1000)) & (
+                            df['custom_verify'] == "")]
+                # 判断是否有满足条件的数据
+                if len(jd.index.values) > 0:
+                    return jd, res
+                else:
+                    return 101, "所有都条件不满足"
             else:
-                video_list = res['aweme_list'][random.randint(0, len(res['aweme_list']) - 1)]
-            uri = video_list["video"]["play_addr_h264"]["url_list"][0]
-            nickname = video_list['author']['nickname']
-            # print(json.dumps(video_list))
-            print("url:", uri)
-            print("nickname:", nickname)
-
-            # 获取自定义的视频标题
-            self.title += f"@{nickname} 的作品"
-            desc = random.choice(conigs.video_title_list) if conigs.title_random else ''.join(
-                conigs.video_title_list)
-            desc += ''.join(conigs.video_at) + self.title
-            reb = requests.get(uri, headers={"User-Agent": self.ua["web"]}).content
-            self.video_path = conigs.video_path + desc + ".mp4"
-            with open(self.video_path, mode="wb") as f:
-                f.write(reb)
-                print("处理前md5：", get_file_md5(self.video_path))
-                print("正在处理视频")
-                # clip = VideoFileClip(self.video_path)
-                # clip.subclip(10, 20)  # 剪切
-                set_video_frame(self.video_path)
-                # self.video_path这个文件名不能改，上传就是上传这个
-                self.video_path = conigs.video_path + desc + "3.mp4"
-                # clip.write_videofile(self.video_path)  # 保存视频
-                print("处理后md5：", get_file_md5(self.video_path))
-                print("视频处理完毕")
-                return 0
+                return 200, res
         except Exception as e:
             print("出现错误：", e)
             logging.info(e)
-            return 1
+            return 1, "1"
+
+    def get_filter(self):
+        """
+        使用pands过滤数据
+        :return:
+        """
+        while True:
+            jd, res = self.get_douyin_music_video()
+            if type(jd) != type(101):
+                break
+            elif jd == 101:
+                print("所有都条件不满足")
+
+        if type(jd) != type(101):
+            dd = jd.sample()
+            # print(dd.index.values)
+            index = dd.index.values[0]
+            video_list = res['aweme_list'][index]
+        elif jd == 1:
+            return jd
+        else:
+            index = random.randint(0, len(res['aweme_list']) - 1)
+            video_list = res['aweme_list'][index]
+
+        uri = video_list["video"]["play_addr_h264"]["url_list"][0]
+        nickname = video_list['author']['nickname']
+        # print(json.dumps(video_list))
+        print("url:", uri)
+        print("nickname:", nickname)
+
+        # 获取自定义的视频标题
+        page_index = 1 if self.page == 0 else round(self.page / 10 + 1)
+        self.title += f"第{page_index}页第{index + 1}个@{nickname} 的作品"
+
+        desc = random.choice(conigs.video_title_list) if conigs.title_random else ''.join(
+            conigs.video_title_list)
+        desc += ''.join(conigs.video_at) + self.title
+        reb = requests.get(uri, headers={"User-Agent": self.ua["web"]}).content
+        self.video_path = conigs.video_path + desc + ".mp4"
+        with open(self.video_path, mode="wb") as f:
+            f.write(reb)
+            print("处理前md5：", get_file_md5(self.video_path))
+            print("正在处理视频")
+            # clip = VideoFileClip(self.video_path)
+            # clip.subclip(10, 20)  # 剪切
+            set_video_frame(self.video_path)
+            # self.video_path这个文件名不能改，上传就是上传这个
+            self.video_path = conigs.video_path + desc + "3.mp4"
+            # clip.write_videofile(self.video_path)  # 保存视频
+            print("处理后md5：", get_file_md5(self.video_path))
+            print("视频处理完毕")
+        return 0
 
 
 class upload_douyin(douyin):
@@ -406,25 +436,34 @@ class upload_douyin(douyin):
                 if "@" in tag:
                     at_index += 1
                     print("正在添加第%s个想@的人" % at_index)
-                    time.sleep(1)
+                    time.sleep(3)
                     try:
-                        await page.get_by_text(tag[1:], exact=True).click(timeout=6000)
+                        if len(conigs.video_at2) <= at_index:
+                            await page.get_by_text("抖音号 %s" % conigs.video_at2[at_index - 1]).click(timeout=5000)
+                        else:
+                            await page.get_by_text(tag[1:], exact=True).first.click(timeout=5000)
                     except Exception as e:
-                        logging.info(tag + "失败1")
-                        try:
-                            await page.locator("div").filter(
-                                has_text=re.compile(r"^" + tag[1:] + "$")).first.click()
-                        except Exception as e:
-                            logging.info(tag + "失败2")
-                            print(e)
-                            print(tag + "未能成功")
+                        print(tag + "失败了", e)
+                        logging.info(tag + "失败")
 
                 else:
                     tag_index += 1
                     await page.press(css_selector, "Space")
                     print("正在添加第%s个话题" % tag_index)
             print("视频标题输入完毕，等待发布")
-            time.sleep(3)
+            time.sleep(2)
+            # 添加位置信息
+            try:
+                city = random.choice(conigs.city_list)
+                await page.get_by_text("输入地理位置").click()
+                time.sleep(3)
+                await page.get_by_role("textbox").nth(1).fill(city)
+                # await page.get_by_text(conigs.city).click()
+                # page.locator("div").filter(has_text=re.compile(r"^位置庐陵老街$")).get_by_role("textbox").fill("庐陵老街")
+                await page.locator(".detail-v2--3LlIL").first.click()
+            except Exception as e:
+                print("位置添加失败")
+                logging.info("位置添加失败")
 
             try:
                 await page.locator('button.button--1SZwR:nth-child(1)').click()
@@ -491,6 +530,7 @@ class upload_douyin(douyin):
         msg = ["视频下载成功，等待发布", "视频下载失败", "音乐榜单获取失败"]
         async with async_playwright() as playwright:
             code = self.get_douyin_music()
+            print(code)
             print(msg[code])
             logging.info(msg[code])
             if code == 0:
