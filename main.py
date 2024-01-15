@@ -54,7 +54,7 @@ def merge_images_video(image_folder, output_file, video_path, fps=None):
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # MP4格式
         videowrite = cv2.VideoWriter(output_file, fourcc, fps, first_img.size)
         img_array = []
-        for filename in [r'./frames/{0}.jpg'.format(i) for i in range(29, index + 29)]:
+        for filename in [r'./frames/{0}.jpg'.format(i) for i in range(89, index + 89)]:
             img = cv2.imread(filename)
             if img is None:
                 print("is error!")
@@ -116,8 +116,8 @@ def set_video_frame(video_path):
     fps = video.get(cv2.CAP_PROP_FPS)
 
     # 设置要提取的帧数范围
-    start_frame = 29  # 起始帧，剔除前面30帧和结尾20帧
-    end_frame = frame_count - 21  # 结束帧
+    start_frame = 89  # 起始帧，剔除前面90帧和结尾30帧
+    end_frame = frame_count - 31  # 结束帧
 
     # 创建保存抽取帧的目录
     output_dir = 'frames/'
@@ -152,6 +152,7 @@ class douyin(object):
         self.title = ""
         self.ids = ""
         self.video_path = ""
+        self.video_ids = []
         self.page = 0
         self.path = os.path.abspath('')
         self.cid = "d9ba8ae07d955b83c3b04280f3dc5a4a"
@@ -277,21 +278,24 @@ class douyin(object):
             verify_reason_values = []
             video_duration_values = []
             remove_custom_verify = []
+
             # 这里把要筛选的条件值加入到筛选列表当中
             for i in res["aweme_list"]:
                 verify_reason_values.append(i["author"]["enterprise_verify_reason"])
                 video_duration_values.append(i["video"]["duration"])
                 remove_custom_verify.append(i["author"]["custom_verify"])
+
             verify_reason = {
                 "verify_reason": verify_reason_values,
                 "duration": video_duration_values,
                 "custom_verify": remove_custom_verify
             }
+
             df = pd.DataFrame(verify_reason)
             if conigs.remove_enterprise and conigs.remove_images and conigs.remove_custom_verify:
                 # 判断是否满足所有条件
                 jd = df[(df['verify_reason'] == "") & (df['duration'] >= (conigs.duration * 1000)) & (
-                            df['custom_verify'] == "")]
+                        df['custom_verify'] == "")]
                 # 判断是否有满足条件的数据
                 if len(jd.index.values) > 0:
                     return jd, res
@@ -312,20 +316,26 @@ class douyin(object):
         while True:
             jd, res = self.get_douyin_music_video()
             if type(jd) != type(101):
-                break
+                dd = jd.sample()
+                # print(dd.index.values)
+                index = dd.index.values[0]
+                video_list = res['aweme_list'][index]
+                aweme_id = res['aweme_list'][index]['aweme_id']
+                with open(self.path + "\\video_id_list.txt", encoding="utf-8", mode="r") as f:
+                    self.video_ids = f.read().split(",")
+                if aweme_id not in self.video_ids:
+                    self.video_ids.append(aweme_id)
+                    break
+                else:
+                    print("该视频已经发送过了本次不再发送")
             elif jd == 101:
                 print("所有都条件不满足")
-
-        if type(jd) != type(101):
-            dd = jd.sample()
-            # print(dd.index.values)
-            index = dd.index.values[0]
-            video_list = res['aweme_list'][index]
-        elif jd == 1:
-            return jd
-        else:
-            index = random.randint(0, len(res['aweme_list']) - 1)
-            video_list = res['aweme_list'][index]
+            elif jd == 1:
+                return jd
+            else:
+                index = random.randint(0, len(res['aweme_list']) - 1)
+                video_list = res['aweme_list'][index]
+                break
 
         uri = video_list["video"]["play_addr_h264"]["url_list"][0]
         nickname = video_list['author']['nickname']
@@ -441,7 +451,8 @@ class upload_douyin(douyin):
                         if len(conigs.video_at2) <= at_index:
                             await page.get_by_text("抖音号 %s" % conigs.video_at2[at_index - 1]).click(timeout=5000)
                         else:
-                            await page.get_by_text(tag[1:], exact=True).first.click(timeout=5000)
+                            tag_at = re.search(r"@(.*?) ", tag).group(1)
+                            await page.get_by_text(tag_at, exact=True).first.click(timeout=5000)
                     except Exception as e:
                         print(tag + "失败了", e)
                         logging.info(tag + "失败")
@@ -478,6 +489,8 @@ class upload_douyin(douyin):
             try:
                 await page.wait_for_url("https://creator.douyin.com/creator-micro/content/manage")
                 print("账号发布视频成功")
+                with open(self.path + "\\video_id_list.txt", encoding="utf-8", mode="w") as f:
+                    f.write(",".join(self.video_ids))
                 logging.info("账号发布视频成功")
             except Exception as e:
                 is_while = False
@@ -522,7 +535,7 @@ class upload_douyin(douyin):
 
                     if is_while:
                         break
-
+        # await context.storage_state(path=self.path + "\\cookie.json")
         await context.close()
         await browser.close()
 
@@ -530,11 +543,13 @@ class upload_douyin(douyin):
         msg = ["视频下载成功，等待发布", "视频下载失败", "音乐榜单获取失败"]
         async with async_playwright() as playwright:
             code = self.get_douyin_music()
-            print(code)
             print(msg[code])
             logging.info(msg[code])
             if code == 0:
                 await self.upload(playwright)
+            else:
+                config.delete_all_files(self.path + "\\frames")
+                config.delete_all_files(self.path + "\\video")
 
 
 def run():
@@ -544,11 +559,8 @@ def run():
 
 if __name__ == '__main__':
     # run()
-    # path = r"E:\python\douyin\发布小程序\video\#老赖陈万洵 @1486323920 -来自：榜单的第25个音乐《Love Lee》@超级马立奥 的作品.mp4"
-    # set_video_frame(path)
-    # merge_images_video(os.path.abspath("") + "\\frames\\", path[:-4] + "2.mp4", path)
 
     print("调度任务开始运行")
     scheduler = BlockingScheduler(timezone='Asia/Shanghai')
-    scheduler.add_job(run, 'interval', minutes=30, misfire_grace_time=900)
+    scheduler.add_job(run, 'interval', minutes=55, misfire_grace_time=900)
     scheduler.start()
