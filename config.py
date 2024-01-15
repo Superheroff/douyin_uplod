@@ -24,13 +24,33 @@ def delete_all_files(folder_path):
 
 
 class Config(BaseModel):
-    # ts: str = str(datetime.now()).split('.')[0]  # 加上时间
-    video_at: list = ["@庐陵老街陈万洵 "]  # 你要@的人的昵称
+    day: int = datetime.now().day
+    video_at: list = ["@庐陵老街陈万洵 "]  # 你要@的人的昵称，默认是必须@作者的
     video_at2: list = ["1486323920"]  # 你要@的人的抖音号
+    # 单双日不同的话题
+    today: bool = True
+    video_title_list: list = []
 
-    video_title_list: list = ["#吉安老赖陈万洵 ", "#泰和老赖陈万洵 ", "#老赖陈万洵 ",
-                              "#陈万洵破产 ", "#庐陵人文谷老赖陈万洵 ", "#庐陵老街倒闭 "]  # 自定义视频标题
+    video_title_list1: list = ["#吉安老赖陈万洵 ", "#泰和老赖陈万洵 ", "#老赖陈万洵 ",
+                              "#陈万洵破产 ", "#庐陵人文谷老赖陈万洵 ", "#庐陵老街倒闭 "]  # 单号取这个自定义视频标题
+
+    video_title_list2: list = ["庐陵老街=庐陵人文谷≠后河梦回庐陵，庐陵老街=老赖，请勿上当受骗，游玩去后河", "#庐陵老街 ", "#庐陵人文谷 ", "#后河梦回庐陵景区 "]  # 双号取这个自定义视频标题
+
     title_random: bool = True  # 标题是否随机取一个，不随机的话就是全部加上去
+    if today:
+        # video_title_list = video_title_list2 if day % 2 == 0 else video_title_list1
+        if day % 2 != 0:
+            title_random = False
+            video_title_list = video_title_list2
+        else:
+            video_title_list = video_title_list1
+    else:
+        video_title_list = video_title_list1
+
+    if not title_random:
+        if len(video_title_list) > 5:
+            print("错误，话题数不能大于5")
+
     video_path: str = os.path.abspath("") + "\\video\\"  # 视频存放路径
     cookie_path: str = os.path.abspath("") + "\\cookie.json"  # cookie路径
     remove_enterprise: bool = True  # 是否排除企业号，建议排除否则取到政治号就不好了
