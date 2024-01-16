@@ -54,7 +54,7 @@ def merge_images_video(image_folder, output_file, video_path, fps=None):
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # MP4格式
         videowrite = cv2.VideoWriter(output_file, fourcc, fps, first_img.size)
         img_array = []
-        for filename in [r'./frames/{0}.jpg'.format(i) for i in range(89, index + 89)]:
+        for filename in [r'./frames/{0}.jpg'.format(i) for i in range(90, index + 90)]:
             img = cv2.imread(filename)
             if img is None:
                 print("is error!")
@@ -134,10 +134,10 @@ def set_video_frame(video_path):
         ret, frame = video.read()
         if not ret:
             break
-        output_file = f'{output_dir}{i}.jpg'
+        output_file = f'{output_dir}{i + 1}.jpg'
         cv2.imwrite(output_file, frame)
 
-        print(f"已处理 {i + 1}/{end_frame} 帧")
+        print(f"已处理 {i + 1}/{end_frame + 1} 帧")
 
     print("所有帧都已成功抽取！")
     # 关闭视频流
@@ -471,8 +471,7 @@ class upload_douyin(douyin):
                         if len(conigs.video_at2) >= at_index:
                             await page.get_by_text("抖音号 " + conigs.video_at2[at_index - 1]).click(timeout=5000)
                         else:
-                            tag_at = re.search(r"@(.*?) ", tag).group(1)
-                            print("想@的人", tag_at)
+                            tag_at = re.search(r"@(.*?) ", tag + " ").group(1)
                             await page.get_by_text(tag_at, exact=True).first.click(timeout=5000)
                     except Exception as e:
                         print(tag + "失败了", e)
