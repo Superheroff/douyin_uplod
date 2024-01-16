@@ -4,6 +4,9 @@
 - 比`douyin_uplod`多了**添加话题**、**@人**、**视频抽帧**等功能
 
 ## 如何运行
+- 使用git clone把项目下载到本地
+- 依次运行下面命令，首次使用需要先运行`get_cookie.py`
+
 ```shell
 pip install -r requirements.txt -i https://mirrors.bfsu.edu.cn/pypi/web/simple/
 playwright install chromium
