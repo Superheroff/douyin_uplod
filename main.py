@@ -17,7 +17,7 @@ from playwright.async_api import Playwright, async_playwright
 import config
 from config import conigs
 from logs import config_log
-
+from datetime import datetime
 
 def get_file_md5(file_path):
     """
@@ -246,7 +246,10 @@ class douyin(object):
         if music_id is None:
             music_id = self.ids if self.ids else "7315704709279550259"
 
-        pages = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
+        pages = []
+        for x in range(0, 20):
+            pages.append(x * 10)
+
         self.page = random.choice(pages)
 
         url = f"https://www.douyin.com/aweme/v1/web/music/aweme/?device_platform=webapp&aid=6383&channel" \
@@ -327,7 +330,7 @@ class douyin(object):
                     self.video_ids.append(aweme_id)
                     break
                 else:
-                    print("该视频已经发送过了本次不再发送")
+                    print(f"该视频:{aweme_id}已经发送过了本次不再发送")
             elif jd == 101:
                 print("所有都条件不满足")
             elif jd == 1:
@@ -337,15 +340,32 @@ class douyin(object):
                 video_list = res['aweme_list'][index]
                 break
 
+        aweme_id = video_list['aweme_id']
         uri = video_list["video"]["play_addr_h264"]["url_list"][0]
         nickname = video_list['author']['nickname']
         # print(json.dumps(video_list))
         print("url:", uri)
         print("nickname:", nickname)
+        print("video_id:", aweme_id)
 
         # 获取自定义的视频标题
         page_index = 1 if self.page == 0 else round(self.page / 10 + 1)
         self.title += f"第{page_index}页第{index + 1}个@{nickname} 的作品"
+
+        day = datetime.now().day
+        if conigs.today:
+            # video_title_list = video_title_list2 if day % 2 == 0 else video_title_list1
+            if day % 2 == 0:
+                conigs.title_random = False
+                conigs.video_title_list = conigs.video_title_list2
+            else:
+                conigs.video_title_list = conigs.video_title_list1
+        else:
+            conigs.video_title_list = conigs.video_title_list1
+
+        if not conigs.title_random:
+            if len(conigs.video_title_list) > 5:
+                print("错误，话题数不能大于5")
 
         desc = random.choice(conigs.video_title_list) if conigs.title_random else ''.join(
             conigs.video_title_list)
@@ -448,10 +468,11 @@ class upload_douyin(douyin):
                     print("正在添加第%s个想@的人" % at_index)
                     time.sleep(3)
                     try:
-                        if len(conigs.video_at2) <= at_index:
-                            await page.get_by_text("抖音号 %s" % conigs.video_at2[at_index - 1]).click(timeout=5000)
+                        if len(conigs.video_at2) >= at_index:
+                            await page.get_by_text("抖音号 " + conigs.video_at2[at_index - 1]).click(timeout=5000)
                         else:
                             tag_at = re.search(r"@(.*?) ", tag).group(1)
+                            print("想@的人", tag_at)
                             await page.get_by_text(tag_at, exact=True).first.click(timeout=5000)
                     except Exception as e:
                         print(tag + "失败了", e)
