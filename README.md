@@ -6,6 +6,7 @@
 ## 如何运行
 - 使用git clone把项目下载到本地
 - 依次运行下面命令，首次使用需要先运行`get_cookie.py`
+- 注意：只提供昵称的@并不准确，加抖音号才能完全准确
 
 ```shell
 pip install -r requirements.txt -i https://mirrors.bfsu.edu.cn/pypi/web/simple/
