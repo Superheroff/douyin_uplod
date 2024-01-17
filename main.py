@@ -231,7 +231,10 @@ class douyin(object):
             music_list = res["music_list"][x]
             self.title = f"—来自：音乐榜单的第{(x + 1)}个音乐《{music_list['music_info']['title']}》"
             self.ids = music_list["music_info"]["id_str"]
-            return self.get_filter()
+            print("music_id:", self.ids)
+            code = self.get_filter()
+            print("code:", code)
+            return code
         except Exception:
             logging.info("获取抖音Top50音乐榜单失败")
             return 2
@@ -332,7 +335,7 @@ class douyin(object):
                 else:
                     print(f"该视频:{aweme_id}已经发送过了本次不再发送")
             elif jd == 101:
-                print("所有都条件不满足")
+                print("所有条件都不满足")
             elif jd == 1:
                 return jd
             else:
@@ -355,7 +358,7 @@ class douyin(object):
         day = datetime.now().day
         if conigs.today:
             # video_title_list = video_title_list2 if day % 2 == 0 else video_title_list1
-            if day % 2 == 0:
+            if day % 2 != 0:
                 conigs.title_random = False
                 conigs.video_title_list = conigs.video_title_list2
             else:
@@ -472,10 +475,11 @@ class upload_douyin(douyin):
                             await page.get_by_text("抖音号 " + conigs.video_at2[at_index - 1]).click(timeout=5000)
                         else:
                             tag_at = re.search(r"@(.*?) ", tag + " ").group(1)
+                            print("想@的人", tag_at)
                             await page.get_by_text(tag_at, exact=True).first.click(timeout=5000)
                     except Exception as e:
-                        print(tag + "失败了", e)
-                        logging.info(tag + "失败")
+                        print(tag + "失败了，可能被对方拉黑了")
+                        logging.info(tag + "失败了，可能被对方拉黑了")
 
                 else:
                     tag_index += 1
@@ -483,7 +487,7 @@ class upload_douyin(douyin):
                     print("正在添加第%s个话题" % tag_index)
             print("视频标题输入完毕，等待发布")
             time.sleep(2)
-            # 添加位置信息
+            # 添加位置信息，只能添加当地
             try:
                 city = random.choice(conigs.city_list)
                 await page.get_by_text("输入地理位置").click()
