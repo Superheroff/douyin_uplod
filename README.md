@@ -64,6 +64,61 @@ douyin_uplod
 - 如有侵权，请联系我删除！
 - 联系方式：838210720
 
+## 运行日志
+```log
+music_id: 7215811630108510210
+该视频:7285622795827006783已经发送过了本次不再发送
+该视频:7285622795827006783已经发送过了本次不再发送
+url: http://v26-web.douyinvod.com/15f197ff8bdde0766f6b1b8ebb89c0a3/65a781f9/video/tos/cn/tos-cn-ve-15/oQ3U7LMeCoXHBKffBARJIhI2oHoAd5gPBrGCog/?a=6383&ch=8&cr=3&dr=0&lr=all&cd=0%7C0%7C0%7C3&cv=1&br=4801&bt=4801&cs=0&ds=4&ft=bvTKJbQQqUYqfJEZao0OiJTidUpi-UM_ejKJz-fVoG0P3-I&mime_type=video_mp4&qs=0&rc=aDlpODw4NGg0aTo5Ozc6OkBpM2w6c2Y6ZjhqcDMzNGkzM0BgX18xYDNeXjUxLzNhYTJiYSMyaWI0cjQwLy9gLS1kLTBzcw%3D%3D&btag=e00018000&dy_q=1705472969&feature_id=46a7bb47b4fd1280f3d3825bf2b29388&l=20240117142928CAC1860DB4F6D57378BA
+nickname: 宸宸不挑食
+video_id: 7315254519003204914
+处理前md5： ec1ecb9360625d8e45469cf18a821171
+正在处理视频
+已处理 90/944 帧
+......
+已处理 944/944 帧
+所有帧都已成功抽取！
+第1张图片合成成功
+......
+第854张图片合成成功
+开始添加背景音乐！
+MoviePy - Writing audio in music//background.mp3
+MoviePy - Done.
+Moviepy - Building video C:\Users\Administrator\Desktop\job\video\—来自：音乐榜单的第7个音乐《晚风遇见你（副歌版）》第6页第10个@宸宸不挑食 的作品3.mp4.
+MoviePy - Writing audio in —来自：音乐榜单的第7个音乐《晚风遇见你（副歌版）》第6页第10个@宸宸不挑食 的作品3TEMP_MPY_wvf_snd.mp3
+MoviePy - Done.
+Moviepy - Writing video C:\Users\Administrator\Desktop\job\video\—来自：音乐榜单的第7个音乐《晚风遇见你（副歌版）》第6页第10个@宸宸不挑食 的作品3.mp4
+
+t: 100%|█████████▉| 854/855 [00:52<00:00, 17.05it/s, now=None][2024-01-17 14:32:09,604]-warnings.py-109-MainThread-C:\ProgramData\Miniconda3\envs\job\lib\site-packages\moviepy\video\io\ffmpeg_reader.py:123: UserWarning: Warning: in file C:\Users\Administrator\Desktop\job\video\—来自：音乐榜单的第7个音乐《晚风遇见你（副歌版）》第6页第10个@宸宸不挑食 的作品2.mp4, 6220800 bytes wanted but 0 bytes read,at frame 854/855, at time 28.47/28.47 sec. Using the last valid frame instead.
+  warnings.warn("Warning: in file %s, "%(self.filename)+
+
+Moviepy - Done !
+Moviepy - video ready C:\Users\Administrator\Desktop\job\video\—来自：音乐榜单的第7个音乐《晚风遇见你（副歌版）》第6页第10个@宸宸不挑食 的作品3.mp4
+背景音乐添加完成！
+处理后md5： afa391570142c8958d24cc8116b4886b
+视频处理完毕
+code: 0
+[2024-01-17 14:32:13,043]-main.py-571-MainThread-视频下载成功，等待发布
+视频下载成功，等待发布
+正在判断账号是否登录
+账号已登录
+该视频有话题
+Timeout 30000ms exceeded.
+正在添加第1个话题
+正在添加第2个话题
+正在添加第3个话题
+正在添加第4个话题
+正在添加第5个话题
+正在添加第1个想@的人
+@庐陵老街陈万洵失败了，可能被对方拉黑了
+[2024-01-17 14:33:05,149]-main.py-482-MainThread-@庐陵老街陈万洵失败了，可能被对方拉黑了
+正在添加第2个想@的人
+想@的人 宸宸不挑食
+正在添加第6个话题
+视频标题输入完毕，等待发布
+来自网页的实时消息：请等待视频上传成功
+```
+
 # 声明
 - qq交流群：916790180
 - 有任何问题请到[issues](https://github.com/Superheroff/douyin_uplod/issues)提交
