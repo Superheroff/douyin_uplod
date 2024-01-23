@@ -118,9 +118,11 @@ class creator_douyin():
         await page.locator(
             "div.banner-div:nth-child(1) > div:nth-child(1) > img:nth-child(1)").click()
 
-        await page.locator("div.semi-tabs-tab:nth-child(2)").click()
+        await page.locator("#semiTabphone").click()
 
-        await page.locator('input.semi-input:nth-child(2)').fill(self.phone)
+        await page.locator('#number').fill(self.phone)
+
+        await page.locator(".agreement-yykwUw > img:nth-child(1)").click()
         try:
             await page.wait_for_url("https://creator.douyin.com/creator-micro/home", timeout=self.timeout)
             self.is_v = True
@@ -134,9 +136,9 @@ class creator_douyin():
             cookie_txt += i.get('name') + '=' + i.get('value') + '; '
         print("cookie", cookie_txt)
         if self.is_v:
-            with open(self.path + "\\" + self.phone + ".txt", mode="w") as f:
+            with open(self.path + "\\cookie\\" + self.phone + ".txt", mode="w") as f:
                 f.write(cookie_txt)
-            await context.storage_state(path=self.path + "\\" + self.desc)
+            await context.storage_state(path=self.path + "\\cookie\\" + self.desc)
         await context.close()
         await browser.close()
 
