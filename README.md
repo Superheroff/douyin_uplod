@@ -36,6 +36,9 @@ douyin_uplod
 └── requirements.txt # 依赖文件
 ```
 ## 更新内容
+**2024.01.23**
+1. 解决`get_cookie`无法获取cookie的问题
+
 **2024.01.17**
 1. 修复BUG
 
