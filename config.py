@@ -12,6 +12,7 @@ import os
 from datetime import datetime
 
 
+<<<<<<< HEAD
 def delete_all_files(folder_path):
     # 获取文件夹中所有文件的列表
     file_list = os.listdir(folder_path)
@@ -23,6 +24,8 @@ def delete_all_files(folder_path):
             os.remove(file_path)
 
 
+=======
+>>>>>>> 7111676 (douyin_uplod V2)
 class Config(BaseModel):
     day: int = datetime.now().day
     video_at: list = ["@庐陵老街陈万洵 "]  # 你要@的人的昵称，默认是必须@作者的
@@ -47,11 +50,15 @@ class Config(BaseModel):
     remove_images: bool = True  # 是否排除图集作品，必须排除，否则失败
     city_list: list = ["庐陵老街", "庐陵人文谷", "澄江广场"]  # 添加位置信息，从中随机，固定的话输入一个就行
 
+<<<<<<< HEAD
     if not os.path.exists(video_path):
         os.makedirs(video_path)
     else:
         if remove_video:
             delete_all_files(video_path)
+=======
+
+>>>>>>> 7111676 (douyin_uplod V2)
 
 
 conigs = Config()

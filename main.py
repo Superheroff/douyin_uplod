@@ -19,6 +19,21 @@ from config import conigs
 from logs import config_log
 from datetime import datetime
 
+<<<<<<< HEAD
+=======
+
+def delete_all_files(folder_path):
+    # 获取文件夹中所有文件的列表
+    file_list = os.listdir(folder_path)
+    for file_name in file_list:
+        file_path = os.path.join(folder_path, file_name)
+        # 判断是否为文件
+        if os.path.isfile(file_path):
+            # 删除文件
+            os.remove(file_path)
+
+
+>>>>>>> 7111676 (douyin_uplod V2)
 def get_file_md5(file_path):
     """
     取文件md5
@@ -77,7 +92,11 @@ def merge_images_video(image_folder, output_file, video_path, fps=None):
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         else:
+<<<<<<< HEAD
             config.delete_all_files(output_dir)
+=======
+            delete_all_files(output_dir)
+>>>>>>> 7111676 (douyin_uplod V2)
         audio = CompositeAudioClip([audio_file])
         audio.write_audiofile(output_dir + '/background.mp3', fps=audio_sample_rate)
         dd_path = output_file[:-5] + '3.mp4'
@@ -124,7 +143,11 @@ def set_video_frame(video_path):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     else:
+<<<<<<< HEAD
         config.delete_all_files(output_dir)
+=======
+        delete_all_files(output_dir)
+>>>>>>> 7111676 (douyin_uplod V2)
 
     # 定位到指定的起始帧
     video.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
@@ -162,6 +185,15 @@ class douyin(object):
             "app": "com.ss.android.ugc.aweme/110101 (Linux; U; Android 5.1.1; zh_CN; MI 9; Build/NMF26X; "
                    "Cronet/TTNetVersion:b4d74d15 2020-04-23 QuicVersion:0144d358 2020-03-24)"
         }
+<<<<<<< HEAD
+=======
+        if not os.path.exists(conigs.video_path):
+            os.makedirs(conigs.video_path)
+
+        if conigs.remove_video:
+            delete_all_files(conigs.video_path)
+            delete_all_files(self.path + "\\frames")
+>>>>>>> 7111676 (douyin_uplod V2)
 
     def get_web_cookie(self):
         """
@@ -233,7 +265,10 @@ class douyin(object):
             self.ids = music_list["music_info"]["id_str"]
             print("music_id:", self.ids)
             code = self.get_filter()
+<<<<<<< HEAD
             print("code:", code)
+=======
+>>>>>>> 7111676 (douyin_uplod V2)
             return code
         except Exception:
             logging.info("获取抖音Top50音乐榜单失败")
@@ -387,6 +422,12 @@ class douyin(object):
             # clip.write_videofile(self.video_path)  # 保存视频
             print("处理后md5：", get_file_md5(self.video_path))
             print("视频处理完毕")
+<<<<<<< HEAD
+=======
+
+            with open(self.path + "\\video_id_list.txt", encoding="utf-8", mode="w") as f:
+                f.write(",".join(self.video_ids))
+>>>>>>> 7111676 (douyin_uplod V2)
         return 0
 
 
@@ -493,13 +534,19 @@ class upload_douyin(douyin):
                 await page.get_by_text("输入地理位置").click()
                 time.sleep(3)
                 await page.get_by_role("textbox").nth(1).fill(city)
+<<<<<<< HEAD
                 # await page.get_by_text(conigs.city).click()
                 # page.locator("div").filter(has_text=re.compile(r"^位置庐陵老街$")).get_by_role("textbox").fill("庐陵老街")
                 await page.locator(".detail-v2--3LlIL").first.click()
+=======
+                await page.locator(".detail-v2--3LlIL").first.click()
+                print("位置添加成功")
+>>>>>>> 7111676 (douyin_uplod V2)
             except Exception as e:
                 print("位置添加失败")
                 logging.info("位置添加失败")
 
+<<<<<<< HEAD
             try:
                 await page.locator('button.button--1SZwR:nth-child(1)').click()
             except Exception as e:
@@ -556,6 +603,64 @@ class upload_douyin(douyin):
                             logging.info("视频发布功能已被封禁")
                         else:
                             pass
+=======
+            # try:
+            #     await page.locator('button.button--1SZwR:nth-child(1)').click()
+            # except Exception as e:
+            #     print(e)
+            # # 获取点击按钮消息
+            # msg = await page.locator('//*[@class="semi-toast-content-text"]').all_text_contents()
+            # for msg_txt in msg:
+            #     print("来自网页的实时消息：" + msg_txt)
+
+            # 跳转成功页面
+            # try:
+            #     await page.wait_for_url("https://creator.douyin.com/creator-micro/content/manage")
+            #     print("账号发布视频成功")
+            #     with open(self.path + "\\video_id_list.txt", encoding="utf-8", mode="w") as f:
+            #         f.write(",".join(self.video_ids))
+            #     logging.info("账号发布视频成功")
+            # except Exception as e:
+            is_while = False
+            while True:
+                # 循环获取点击按钮消息
+                time.sleep(2)
+                try:
+                    await page.locator('button.button--1SZwR:nth-child(1)').click()
+                except Exception as e:
+                    print(e)
+                    break
+                msg = await page.locator('//*[@class="semi-toast-content-text"]').all_text_contents()
+                for msg_txt in msg:
+                    print("来自网页的实时消息：" + msg_txt)
+                    if msg_txt.find("发布成功") != -1:
+                        is_while = True
+                        logging.info("账号发布视频成功")
+                        print("账号发布视频成功")
+                    elif msg_txt.find("上传成功") != -1:
+                        try:
+                            await page.locator('button.button--1SZwR:nth-child(1)').click()
+                        except Exception as e:
+                            print(e)
+                            break
+                        msg2 = await page.locator(
+                            '//*[@class="semi-toast-content-text"]').all_text_contents()
+                        for msg2_txt in msg2:
+                            if msg2_txt.find("发布成功") != -1:
+                                is_while = True
+                                logging.info("账号发布视频成功")
+                                print("账号发布视频成功")
+                            elif msg2_txt.find("已封禁") != -1:
+                                is_while = True
+                                logging.info("账号视频发布功能已被封禁")
+                                print("账号视频发布功能已被封禁")
+                    elif msg_txt.find("已封禁") != -1:
+                        is_while = True
+                        print("视频发布功能已被封禁")
+                        logging.info("视频发布功能已被封禁")
+                    else:
+                        pass
+>>>>>>> 7111676 (douyin_uplod V2)
 
                     if is_while:
                         break
@@ -567,11 +672,15 @@ class upload_douyin(douyin):
         msg = ["视频下载成功，等待发布", "视频下载失败", "音乐榜单获取失败"]
         async with async_playwright() as playwright:
             code = self.get_douyin_music()
+<<<<<<< HEAD
             print(msg[code])
+=======
+>>>>>>> 7111676 (douyin_uplod V2)
             logging.info(msg[code])
             if code == 0:
                 await self.upload(playwright)
             else:
+<<<<<<< HEAD
                 config.delete_all_files(self.path + "\\frames")
                 config.delete_all_files(self.path + "\\video")
 
@@ -579,6 +688,42 @@ class upload_douyin(douyin):
 def run():
     app = upload_douyin(60, conigs.cookie_path)
     asyncio.run(app.main())
+=======
+                delete_all_files(self.path + "\\frames")
+                delete_all_files(self.path + "\\video")
+
+
+def find_file(find_path, file_type):
+    """
+    寻找文件
+    :param find_path: 子路径
+    :param file_type: 文件类型
+    :return:
+    """
+    path = os.path.abspath('') + "\\" + find_path
+    if not os.path.exists(path):
+        os.makedirs(path)
+    data_list = []
+    for root, dirs, files in os.walk(path):
+        if root != path:
+            break
+        for file in files:
+            file_path = os.path.join(root, file)
+            if file_path.find(file_type) != -1:
+                data_list.append(file_path)
+    return data_list
+
+
+def run():
+    cookie_list = find_file("cookie", "json")
+    x = 0
+    for cookie_path in cookie_list:
+        x += 1
+        cookie_name: str = os.path.basename(cookie_path)
+        print("正在使用[%s]发送作品，当前账号排序[%s]" % (cookie_name.split("_")[1][:-5], str(x)))
+        app = upload_douyin(60, cookie_path)
+        asyncio.run(app.main())
+>>>>>>> 7111676 (douyin_uplod V2)
 
 
 if __name__ == '__main__':
