@@ -25,7 +25,8 @@ douyin_uplod
 │     └── x3.mp4 # 处理完的视频（上传的是这个视频，上传未经处理的视频会被限流）
 ├── music  # 背景音乐目录
 │     └── background.mp3 # 从视频中提取出来的音乐
-├── cookie.json  # 登录要发布视频的账号
+├── cookie  # 存放账号目录
+│     └── cookie.json # cookie
 ├── main.py    # 主程序入口
 ├── config.py  # 配置文件
 ├── get_cookie.py  # 生成cookie.json文件
