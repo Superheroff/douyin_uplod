@@ -1,7 +1,7 @@
 # 发布视频小程序V2.1
 ## 介绍
-- 这是[douyin_uplod](https://github.com/Superheroff/douyin_uplod/tree/main)的升级版
-- 比`douyin_uplod`多了**添加话题**、**@人**、**视频抽帧**等功能
+- [old_douyin_uplod](https://github.com/Superheroff/douyin_uplod/tree/main)
+- 比`old_douyin_uplod`多了**添加话题**、**@人**、**视频抽帧**等功能
 
 ## 如何运行
 - 使用git clone把项目下载到本地
@@ -26,7 +26,7 @@ douyin_uplod V2
 ├── music  # 背景音乐目录
 │     └── background.mp3 # 从视频中提取出来的音乐
 ├── cookie  # 存放账号目录
-│     └── cookie.json # cookie
+│     └── cookie_手机号.json # cookie
 ├── main.py    # 主程序入口
 ├── config.py  # 配置文件
 ├── get_cookie.py  # 生成cookie.json文件
@@ -37,6 +37,10 @@ douyin_uplod V2
 └── requirements.txt # 依赖文件
 ```
 ## 更新内容
+**2024.03.03**
+1. 修复文件路径问题
+2. 增加了视频进度条
+
 **2024.01.23**
 1. 解决`get_cookie`无法获取cookie的问题
 
