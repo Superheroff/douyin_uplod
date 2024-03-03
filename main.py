@@ -144,7 +144,7 @@ def set_video_frame(video_path):
     video.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
 
     # 按照指定的间隔提取并保存帧图像
-    with tqdm(total=(end_frame - start_frame), desc="视频抽帧进度", leave=True) as pbar:
+    with tqdm(total=(end_frame - start_frame), desc="视频抽帧进度") as pbar:
         for i in range(start_frame + 1, end_frame + 1):
             ret, frame = video.read()
             if not ret:
@@ -521,6 +521,11 @@ class upload_douyin(douyin):
                     except Exception as e:
                         logging.info("位置添加失败", e)
 
+                    # 添加声明
+                    await page.locator("p.contentTitle--1Oe95:nth-child(2)").click()
+                    await page.get_by_role("radio", name="内容由AI生成", exact=True).click()
+                    await page.get_by_role("button", name="确定", exact=True).click()
+
                     is_while = False
                     while True:
                         # 循环获取点击按钮消息
@@ -531,6 +536,7 @@ class upload_douyin(douyin):
                             try:
                                 await page.wait_for_url("https://creator.douyin.com/creator-micro/content/manage")
                                 logging.info("账号发布视频成功")
+                                break
                             except Exception as e:
                                 print(e)
                         except Exception as e:
@@ -609,14 +615,12 @@ def find_file(find_path, file_type) -> list:
 def run():
     cookie_list = find_file("cookie", "json")
     x = 0
-    with tqdm(total=len(cookie_list), desc="视频发布进度") as pbar:
-        for cookie_path in cookie_list:
-            x += 1
-            cookie_name: str = os.path.basename(cookie_path)
-            print("正在使用[%s]发送作品，当前账号排序[%s]" % (cookie_name.split("_")[1][:-5], str(x)))
-            app = upload_douyin(60, cookie_path)
-            pbar.update(1)
-            asyncio.run(app.main())
+    for cookie_path in cookie_list:
+        x += 1
+        cookie_name: str = os.path.basename(cookie_path)
+        print("正在使用[%s]发布作品，当前账号排序[%s]" % (cookie_name.split("_")[1][:-5], str(x)))
+        app = upload_douyin(60, cookie_path)
+        asyncio.run(app.main())
 
 
 if __name__ == '__main__':
