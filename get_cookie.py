@@ -72,7 +72,7 @@ class creator_douyin():
         i = 0
         while True:
             i += 1
-            if os.path.exists(self.path + "\\" + self.desc):
+            if os.path.exists(os.path.join(self.path, self.desc)):
                 text = "cookie(%s)" % i
                 self.desc = "%s_%s.json" % (text, self.phone)
 
@@ -136,9 +136,9 @@ class creator_douyin():
             cookie_txt += i.get('name') + '=' + i.get('value') + '; '
         print("cookie", cookie_txt)
         if self.is_v:
-            with open(self.path + "\\cookie\\" + self.phone + ".txt", mode="w") as f:
+            with open(os.path.join(self.path, "cookie", self.phone + ".txt"), mode="w") as f:
                 f.write(cookie_txt)
-            await context.storage_state(path=self.path + "\\cookie\\" + self.desc)
+            await context.storage_state(path=os.path.join(self.path, "cookie", self.desc))
         await context.close()
         await browser.close()
 

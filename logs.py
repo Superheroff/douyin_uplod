@@ -17,7 +17,7 @@ def config_log(is_debug=False, when="D"):
     :param is_debug: 级别
     :param when: 按照规则切分
     """
-    file_path = os.path.abspath("") + r"\\logs.log"
+    file_path = os.path.join(os.path.abspath(""), "logs.log")
     if is_debug:
         fmt = '[%(asctime)s]-%(filename)s-%(lineno)d-%(threadName)s-%(message)s'
     else:
