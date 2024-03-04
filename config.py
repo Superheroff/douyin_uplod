@@ -9,15 +9,14 @@
 
 from pydantic import BaseModel
 import os
-from datetime import datetime
 
 
 class Config(BaseModel):
-    day: int = datetime.now().day
     video_at: list = ["@1486323920 "]  # 你要@的人的昵称，默认是必须@作者的
     video_at2: list = ["1486323920"]  # 你要@的人的抖音号
     # 单双日不同的话题
     today: bool = True
+
     video_title_list: list = []
 
     video_title_list1: list = ["#标题1 ", "#标题2 "]  # 单号取这个自定义视频标题

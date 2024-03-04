@@ -437,19 +437,15 @@ class upload_douyin(douyin):
             await page.locator(".login").click(timeout=1500)
             print("未登录，正在跳出")
             logging.info("未登录，正在跳出")
-            is_login = False
         except Exception as e:
             # print("出现此error，代表cookie正常反之异常\n", e)
-            is_login = True
             print("账号已登录")
-        if is_login:
             try:
                 msg = ["视频下载成功，等待发布", "视频下载失败", "音乐榜单获取失败"]
                 # 等待视频处理完毕
                 code = self.get_douyin_music()
                 logging.info(msg[code])
                 if code == 0:
-                    # await page.goto("https://creator.douyin.com/creator-micro/content/upload")
                     video_desc_list = self.video_path.split("\\")
                     video_desc = str(video_desc_list[len(video_desc_list) - 1])[:-4]
                     video_desc_tag = []
@@ -532,7 +528,6 @@ class upload_douyin(douyin):
                         time.sleep(2)
                         try:
                             await page.get_by_role("button", name="发布", exact=True).click()
-                            # await page.locator('button.button--1SZwR:nth-child(1)').click()
                             try:
                                 await page.wait_for_url("https://creator.douyin.com/creator-micro/content/manage")
                                 logging.info("账号发布视频成功")
