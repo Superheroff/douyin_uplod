@@ -1,4 +1,4 @@
-# 发布视频小程序V2.2
+# 发布视频小程序V2.3
 ## 介绍
 - [old_douyin_uplod](https://github.com/Superheroff/douyin_uplod/tree/main)
 - 比`old_douyin_uplod`多了**添加话题**、**@人**、**视频抽帧**等功能
@@ -37,6 +37,11 @@ douyin_uplod V2
 └── requirements.txt # 依赖文件
 ```
 ## 更新内容
+**2024.03.07**
+1. 新增视频声明配置
+2. 新增视频定位开关配置
+3. 解决了一些问题
+
 **2024.03.04**
 1. 修复文件路径问题
 2. 新增视频发布进度条

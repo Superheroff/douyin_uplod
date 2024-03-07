@@ -1,3 +1,4 @@
+
 import asyncio
 import hashlib
 import logging
@@ -74,7 +75,7 @@ def merge_images_video(image_folder, output_file, video_path, fps=None):
             img_array.append(img)
         # 合成视频
         with tqdm(total=len(img_array), desc="图片合成进度") as pbar:
-            for i in range(1, len(img_array)):
+            for i in range(len(img_array)):
                 img_array[i] = cv2.resize(img_array[i], first_img.size)
                 videowrite.write(img_array[i])
                 pbar.update(1)
@@ -340,7 +341,7 @@ class douyin(object):
         """
         while True:
             jd, res = self.get_douyin_music_video()
-            if type(jd) != type(101):
+            if not isinstance(jd, int):
                 dd = jd.sample()
                 # print(dd.index.values)
                 index = dd.index.values[0]
@@ -377,20 +378,19 @@ class douyin(object):
         day = datetime.now().day
         if conigs.today:
             # video_title_list = video_title_list2 if day % 2 == 0 else video_title_list1
-            if day % 2 != 0:
+            if day % 2 == 0:
                 conigs.title_random = False
-                conigs.video_title_list = conigs.video_title_list2
+                video_title_list = conigs.video_title_list2
             else:
-                conigs.video_title_list = conigs.video_title_list1
+                video_title_list = conigs.video_title_list1
         else:
-            conigs.video_title_list = conigs.video_title_list1
+            video_title_list = conigs.video_title_list1
 
         if not conigs.title_random:
-            if len(conigs.video_title_list) > 5:
+            if len(video_title_list) > 5:
                 print("错误，话题数不能大于5")
-
-        desc = random.choice(conigs.video_title_list) if conigs.title_random else ''.join(
-            conigs.video_title_list)
+        desc = random.choice(video_title_list) if conigs.title_random else ''.join(
+            video_title_list)
         desc += ''.join(conigs.video_at) + self.title
         reb = requests.get(uri, headers={"User-Agent": self.ua["web"]}).content
         self.video_path = os.path.join(conigs.video_path, desc + ".mp4")
@@ -505,22 +505,51 @@ class upload_douyin(douyin):
                             await page.press(css_selector, "Space")
                             print("正在添加第%s个话题" % tag_index)
                     print("视频标题输入完毕，等待发布")
-                    time.sleep(2)
+
                     # 添加位置信息，只能添加当地
-                    try:
-                        city = random.choice(conigs.city_list)
-                        await page.get_by_text("输入地理位置").click()
-                        time.sleep(3)
-                        await page.get_by_role("textbox").nth(1).fill(city)
-                        await page.locator(".detail-v2--3LlIL").first.click()
-                        print("位置添加成功")
-                    except Exception as e:
-                        logging.info("位置添加失败", e)
+                    if conigs.city:
+                        time.sleep(2)
+                        try:
+                            city = random.choice(conigs.city_list)
+                            await page.get_by_text("输入地理位置").click()
+                            time.sleep(3)
+                            await page.get_by_role("textbox").nth(1).fill(city)
+                            await page.locator(".detail-v2--3LlIL").first.click()
+                            print("位置添加成功")
+                        except Exception as e:
+                            logging.info("位置添加失败", e)
 
                     # 添加声明
-                    await page.locator("p.contentTitle--1Oe95:nth-child(2)").click()
-                    await page.get_by_role("radio", name="内容由AI生成", exact=True).click()
-                    await page.get_by_role("button", name="确定", exact=True).click()
+                    if conigs.declaration:
+                        declaration_int = conigs.declaration_int
+                        if declaration_int > 6:
+                            raise Exception("失败，添加声明序号超出指定范围")
+                        declaration_content: str = (lambda content, index: content[index])(conigs.declaration_list,
+                                                                                           declaration_int - 1)
+                        print(declaration_content)
+                        await page.locator("p.contentTitle--1Oe95:nth-child(2)").click()
+                        await page.get_by_role("radio", name=declaration_content, exact=True).click()
+                        if declaration_int == 1:
+                            if len(conigs.declaration_value) < 2:
+                                raise Exception("请设置拍摄地和拍摄日期")
+                            await page.get_by_text("选择拍摄地点").click()
+                            i1 = 0
+                            value_list = (conigs.declaration_value[0]).split("-")
+                            for i in value_list:
+                                if i1 + 1 == len(value_list):
+                                    await page.locator("li").filter(has_text=i).click()
+                                else:
+                                    await page.locator("li").filter(has_text=i).locator("svg").click()
+                                i1 += 1
+                            time.sleep(2)
+                            await page.get_by_placeholder("设置拍摄日期").click()
+                            declaration_value = conigs.declaration_value[1]
+                            if declaration_value is None:
+                                declaration_value = datetime.today().strftime("-%m-%d")
+                            await page.get_by_title(declaration_value).locator("div").click()
+                        elif declaration_int == 2:
+                            await page.get_by_role("radio", name="取材站外", exact=True).click()
+                        await page.get_by_role("button", name="确定", exact=True).click()
 
                     is_while = False
                     while True:
@@ -622,5 +651,5 @@ if __name__ == '__main__':
     run()
     # print("任务开始运行")
     # scheduler = BlockingScheduler(timezone='Asia/Shanghai')
-    # scheduler.add_job(run, 'interval', minutes=55, misfire_grace_time=900)
+    # scheduler.add_job(run, 'interval', minutes=60, misfire_grace_time=900)
     # scheduler.start()

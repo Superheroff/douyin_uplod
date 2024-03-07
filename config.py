@@ -6,18 +6,15 @@
 @File    : config.py
 @IDE: PyCharm
 """
-
 from pydantic import BaseModel
 import os
-
+from datetime import datetime
 
 class Config(BaseModel):
     video_at: list = ["@1486323920 "]  # 你要@的人的昵称，默认是必须@作者的
     video_at2: list = ["1486323920"]  # 你要@的人的抖音号
     # 单双日不同的话题
     today: bool = True
-
-    video_title_list: list = []
 
     video_title_list1: list = ["#标题1 ", "#标题2 "]  # 单号取这个自定义视频标题
 
@@ -32,9 +29,14 @@ class Config(BaseModel):
     remove_enterprise: bool = True  # 是否排除企业号，建议排除否则取到政治号就不好了
     remove_custom_verify: bool = True  # 排除普通认证号
     remove_video: bool = True  # 是否自动删除video文件夹中的视频
-    duration: int = 15  # 筛选>=xx秒以上的视频
+    duration: int = 10  # 筛选>=xx秒的视频
     remove_images: bool = True  # 是否排除图集作品，必须排除，否则失败
+    city: bool = False  # 是否添加位置
     city_list: list = ["后河梦回庐陵", "能仁巷", "澄江广场"]  # 添加位置信息，从中随机，固定的话输入一个就行
 
+    declaration: bool = True  # 是否添加声明
+    declaration_int: int = 1  # 添加什么声明序号，1-6
+    declaration_list: list = ["内容自行拍摄", "内容取材网络", "内容由AI生成", "可能引人不适", "虚构演绎，仅供娱乐", "危险行为，请勿模仿"]
+    declaration_value: list = ["中国-安徽-安庆", None]  # 如果设置内容自行拍摄，则必须设置此项，list[0]=拍摄地，list[1]=拍摄日期，默认当天
 
 conigs = Config()
