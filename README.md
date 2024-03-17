@@ -1,4 +1,4 @@
-# 发布视频小程序V2.3
+# 发布视频小程序V2.4
 ## 介绍
 - [old_douyin_uplod](https://github.com/Superheroff/douyin_uplod/tree/main)
 - 比`old_douyin_uplod`多了**添加话题**、**@人**、**视频抽帧**等功能
@@ -37,6 +37,9 @@ douyin_uplod V2
 └── requirements.txt # 依赖文件
 ```
 ## 更新内容
+**2024.03.18**
+- 优化@人，解决对方改变昵称后@不成功的问题
+
 **2024.03.07**
 1. 新增视频声明配置
 2. 新增视频定位开关配置
@@ -49,10 +52,10 @@ douyin_uplod V2
 4. 先判断是否登录再处理视频，解决先处理视频后发现未登录的尴尬场景
 
 **2024.01.23**
-1. 解决`get_cookie`无法获取cookie的问题
+- 解决`get_cookie`无法获取cookie的问题
 
 **2024.01.17**
-1. 修复BUG
+- 修复BUG
 
 **2024.01.15**
 1. 解决视频重复问题

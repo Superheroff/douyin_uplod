@@ -259,6 +259,27 @@ class douyin(object):
             logging.info("获取抖音Top50音乐榜单失败", e)
             return 2
 
+    def get_web_userinfo(self, unique_id) -> str:
+        """
+        根据抖音号获取用户信息
+        :param unique_id:
+        :return:
+        """
+        url = "https://www.iesdouyin.com/web/api/v2/user/info/?unique_id={}".format(unique_id)
+        res = requests.get(url, headers={"User-Agent": self.ua["web"]}).json()
+        n = 0
+        while True:
+            n += 1
+            try:
+                nickname = res["user_info"]["nickname"]
+                break
+            except KeyError:
+                print("获取用户昵称失败！")
+            if n > 3:
+                nickname = ''
+                break
+        return nickname
+
     def get_douyin_music_video(self, music_id=None):
         """
         根据音乐id获取音乐视频列表
@@ -391,7 +412,11 @@ class douyin(object):
                 print("错误，话题数不能大于5")
         desc = random.choice(video_title_list) if conigs.title_random else ''.join(
             video_title_list)
-        desc += ''.join(conigs.video_at) + self.title
+
+        nickname = ''
+        for at in conigs.video_at:
+            nickname += f"@{self.get_web_userinfo(at)} "
+        desc += nickname + self.title
         reb = requests.get(uri, headers={"User-Agent": self.ua["web"]}).content
         self.video_path = os.path.join(conigs.video_path, desc + ".mp4")
         with open(self.video_path, mode="wb") as f:
@@ -449,10 +474,9 @@ class upload_douyin(douyin):
                     video_desc_list = self.video_path.split("\\")
                     video_desc = str(video_desc_list[len(video_desc_list) - 1])[:-4]
                     video_desc_tag = []
-                    tag_rs = re.findall(r"(#.*?) ", video_desc)
-                    if len(tag_rs) > 0:
+                    if '#' in video_desc or '@' in video_desc:
                         video_desc_tag = video_desc.split(" ")
-                        print("该视频有话题")
+                        print("该视频有话题或需要@人")
                     else:
                         video_desc_tag.append(video_desc)
                         print("该视频没有检测到话题")
@@ -489,8 +513,8 @@ class upload_douyin(douyin):
                             print("正在添加第%s个想@的人" % at_index)
                             time.sleep(3)
                             try:
-                                if len(conigs.video_at2) >= at_index:
-                                    await page.get_by_text("抖音号 " + conigs.video_at2[at_index - 1]).click(
+                                if len(conigs.video_at) >= at_index:
+                                    await page.get_by_text("抖音号 " + conigs.video_at[at_index - 1]).click(
                                         timeout=5000)
                                 else:
                                     tag_at = re.search(r"@(.*?) ", tag + " ").group(1)
@@ -526,7 +550,7 @@ class upload_douyin(douyin):
                             raise Exception("失败，添加声明序号超出指定范围")
                         declaration_content: str = (lambda content, index: content[index])(conigs.declaration_list,
                                                                                            declaration_int - 1)
-                        print(declaration_content)
+
                         await page.locator("p.contentTitle--1Oe95:nth-child(2)").click()
                         await page.get_by_role("radio", name=declaration_content, exact=True).click()
                         if declaration_int == 1:

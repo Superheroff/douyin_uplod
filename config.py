@@ -11,8 +11,8 @@ import os
 from datetime import datetime
 
 class Config(BaseModel):
-    video_at: list = ["@1486323920 "]  # 你要@的人的昵称，默认是必须@作者的
-    video_at2: list = ["1486323920"]  # 你要@的人的抖音号
+    video_at: list = ["1486323920"]  # 你要@的人的抖音号，默认是必须@作者的
+
     # 单双日不同的话题
     today: bool = True
 
