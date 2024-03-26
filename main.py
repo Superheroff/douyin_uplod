@@ -170,7 +170,7 @@ class douyin(object):
         self.video_ids = []
         self.page = 0
         self.path = os.path.abspath('')
-        self.cid = "d9ba8ae07d955b83c3b04280f3dc5a4a"
+        self.cid = conigs.apikey
         self.ua = {
             "web": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 "
                    "Safari/537.36",
