@@ -131,8 +131,8 @@ def set_video_frame(video_path):
     fps = video.get(cv2.CAP_PROP_FPS)
 
     # 设置要提取的帧数范围
-    start_frame = 89  # 起始帧，剔除前面90帧和结尾30帧
-    end_frame = frame_count - 31  # 结束帧
+    start_frame = conigs.start_frame - 1  # 起始帧
+    end_frame = frame_count - (conigs.end_frame + 1)  # 结束帧
 
     # 创建保存抽取帧的目录
     output_dir = 'frames/'

@@ -10,6 +10,8 @@ from pydantic import BaseModel
 import os
 
 class Config(BaseModel):
+
+
     video_at: list = ["1486323920"]  # 你要@的人的抖音号，默认是必须@作者的，
     # 2.4以上版本无需提供昵称，将通过抖音号自动获取
 
