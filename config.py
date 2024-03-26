@@ -10,7 +10,8 @@ from pydantic import BaseModel
 import os
 
 class Config(BaseModel):
-
+    # 获取cookie可以从get_cookie.py获取，并不一定从此接口获取
+    apikey: str = "d9ba8ae07d955b83c3b04280f3dc5a4a"
 
     video_at: list = ["1486323920"]  # 你要@的人的抖音号，默认是必须@作者的，
     # 2.4以上版本无需提供昵称，将通过抖音号自动获取
