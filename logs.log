@@ -18,3 +18,14 @@
 [2024-04-06 14:27:56,429]-warnings.py-109-MainThread-sys:1: RuntimeWarning: coroutine 'douyin.get_douyin_music' was never awaited
 
 [2024-04-06 14:30:12,248]-main.py-447-MainThread-视频下载成功，等待发布
+[2024-04-06 16:24:09,717]-warnings.py-109-MainThread-D:\编程\python\douyin\发布小程序\douyin_uplod\main.py:407: RuntimeWarning: coroutine 'set_video_frame' was never awaited
+  set_video_frame(self.video_path)
+
+[2024-04-06 16:26:39,187]-main.py-116-MainThread-object int can't be used in 'await' expression
+[2024-04-06 16:27:13,020]-main.py-116-MainThread-'async for' requires an object with __aiter__ method, got list
+[2024-04-06 16:28:07,502]-main.py-116-MainThread-object numpy.ndarray can't be used in 'await' expression
+[2024-04-06 16:29:07,631]-main.py-601-MainThread-发布视频失败，cookie已失效，请登录后再试
+[2024-04-06 16:32:02,496]-main.py-117-MainThread-'video_fps'
+[2024-04-06 16:35:54,481]-warnings.py-109-MainThread-D:\编程\python\douyin\发布小程序\douyin_uplod\venv\Lib\site-packages\moviepy\video\io\ffmpeg_reader.py:123: UserWarning: Warning: in file D:\编程\python\douyin\发布小程序\douyin_uplod\video\标题1标题2@以仁促达 —来自：音乐榜单的第8个音乐《Zhurek（副歌）》第21页@木南北北 的作品2.mp4, 6220800 bytes wanted but 0 bytes read,at frame 281/282, at time 9.37/9.37 sec. Using the last valid frame instead.
+  warnings.warn("Warning: in file %s, "%(self.filename)+
+
