@@ -1,4 +1,3 @@
-
 import asyncio
 import hashlib
 import logging
@@ -161,7 +160,7 @@ def set_video_frame(video_path):
     merge_images_video(os.path.join(os.path.abspath(""), "frames"), video_path[:-4] + "2.mp4", video_path, fps)
 
 
-class douyin(object):
+class douyin():
     def __init__(self):
         config_log()
         self.title = ""
@@ -170,9 +169,8 @@ class douyin(object):
         self.video_ids = []
         self.page = 0
         self.path = os.path.abspath('')
-        self.cid = conigs.apikey
         self.ua = {
-            "web": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 "
+            "web": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 "
                    "Safari/537.36",
             "app": "com.ss.android.ugc.aweme/110101 (Linux; U; Android 5.1.1; zh_CN; MI 9; Build/NMF26X; "
                    "Cronet/TTNetVersion:b4d74d15 2020-04-23 QuicVersion:0144d358 2020-03-24)"
@@ -183,56 +181,23 @@ class douyin(object):
             delete_all_files(conigs.video_path)
             delete_all_files(os.path.join(self.path, "frames"))
 
-    def get_web_cookie(self):
+    async def playwright_init(self, p: Playwright, cookie_path=None, headless=None):
         """
-        获取cookie
-        :return:
+        初始化playwright
         """
-        url = 'http://api2.52jan.com/dyapi/get_cookie/v2'
-        ts = str(time.time()).split('.')[0]
-        header = {
-            'cid': self.cid,
-            'timestamp': ts,
-            'user-agent': 'okhttp/3.10.0.12'
-        }
-        sign = self.set_sign()
-        resp = requests.post(url, data={'sign': sign}, headers=header).json()
-        return resp['data'][0]['cookie']
+        if headless is None:
+            headless = False
+        browser = await p.chromium.launch(headless=headless,
+                                          chromium_sandbox=False,
+                                          ignore_default_args=["--enable-automation"],
+                                          channel="chrome"
+                                          )
 
-    def get_appkey(self):
-        data = self.cid + '5c6b8r9a'
-        return hashlib.sha256(data.encode('utf-8')).hexdigest()
+        context = await browser.new_context(storage_state=cookie_path, user_agent=self.ua["web"])
+        page = await context.new_page()
+        return page
 
-    def set_sign(self):
-        ts = str(time.time()).split('.')[0]
-        string = '1005' + self.cid + ts + self.get_appkey()
-        sign = hashlib.md5(string.encode('utf8')).hexdigest()
-        return sign
-
-    def get_web_xbogus(self, url, ua):
-        """
-        获取web xbogus
-        :param url:
-        :param ua:
-        :return:
-        """
-        sign_url = 'http://api2.52jan.com/dyapi/web/xbogus'
-        ts = str(time.time()).split('.')[0]
-        header = {
-            'cid': self.cid,
-            'timestamp': ts,
-            'user-agent': 'okhttp/3.10.0.12'
-        }
-        sign = self.set_sign()
-        params = {
-            'url': url,
-            'ua': ua,
-            'sign': sign
-        }
-        resp = requests.post(sign_url, data=params, headers=header).json()
-        return resp
-
-    def get_douyin_music(self):
+    async def get_douyin_music(self):
         """
         获取抖音Top50音乐榜单
         :return:
@@ -245,18 +210,17 @@ class douyin(object):
               f"&version_code=110100&cdid=02a0dd0b-7ed3-4bb4-9238-21b38ee513b2&openudid=af450515be7790d1&device_id=3166182763934663" \
               f"&resolution=720*1280&os_version=5.1.1&language=zh&device_brand=Xiaomi&aid=1128&mcc_mnc=46007"
 
+        res = requests.get(url, headers={"User-Agent": self.ua["app"]}).json()
+        x = random.randint(0, len(res["music_list"]) - 1)
+        music_list = res["music_list"][x]
+        self.title = f"—来自：音乐榜单的第{(x + 1)}个音乐《{music_list['music_info']['title']}》"
+        self.ids = music_list["music_info"]["id_str"]
+        print("music_id:", self.ids)
         try:
-            res = requests.get(url, headers={"User-Agent": self.ua["app"]}).json()
-            # print(res)
-            x = random.randint(0, len(res["music_list"]) - 1)
-            music_list = res["music_list"][x]
-            self.title = f"—来自：音乐榜单的第{(x + 1)}个音乐《{music_list['music_info']['title']}》"
-            self.ids = music_list["music_info"]["id_str"]
-            print("music_id:", self.ids)
-            code = self.get_filter()
+            code = await self.get_filter()
             return code
         except Exception as e:
-            logging.info("获取抖音Top50音乐榜单失败", e)
+            logging.info("根据音乐ID获取视频失败", e)
             return 2
 
     def get_web_userinfo(self, unique_id) -> str:
@@ -280,48 +244,66 @@ class douyin(object):
                 break
         return nickname
 
-    def get_douyin_music_video(self, music_id=None):
+    async def get_douyin_music_video(self, p: Playwright, music_id=None):
         """
         根据音乐id获取音乐视频列表
-        :param music_id:
         :return:
         """
 
         if music_id is None:
             music_id = self.ids if self.ids else "7315704709279550259"
 
+        page = await self.playwright_init(p, headless=True)
+        await page.add_init_script(path="stealth.min.js")
+        await page.goto("https://www.douyin.com/music/" + music_id)
+
         pages = []
-        for x in range(0, 20):
+        for x in range(0, 40):
             pages.append(x * 10)
 
         self.page = random.choice(pages)
 
-        url = f"https://www.douyin.com/aweme/v1/web/music/aweme/?device_platform=webapp&aid=6383&channel" \
-              f"=channel_pc_web&count=10&cursor={self.page}&music_id={music_id}&pc_client_type=1&version_code=170400" \
-              f"&version_name=17.4.0&cookie_enabled=true&screen_width=1536&screen_height=864&browser_language=zh-CN" \
-              f"&browser_platform=Win32&browser_name=Chrome&browser_version=120.0.0.0&browser_online=true&engine_name" \
-              f"=Blink&engine_version=120.0.0.0&os_name=Windows&os_version=10&cpu_core_num=8&device_memory=8&platform" \
-              f"=PC&downlink=10&effective_type=4g&round_trip_time=50"
+        url = (f"https://www.douyin.com/aweme/v1/web/music/aweme/?device_platform=webapp&aid=6383&channel"
+               f"=channel_pc_web&count=12&cursor={self.page}&music_id={music_id}&pc_client_type=1&version_code=170400"
+               f"&version_name=17.4.0&cookie_enabled=true&screen_width=1920&screen_height=1280&browser_language=zh-CN"
+               f"&browser_platform=Win32&browser_name=Chrome&browser_version=123.0.0.0&browser_online=true"
+               f"&engine_name=Blink&engine_version=123.0.0.0&os_name=Windows&os_version=10&cpu_core_num=32"
+               f"&device_memory=8&platform=PC&downlink=10&effective_type=4g&round_trip_time=100"
+               )
 
-        headers = {
-            "Host": "www.douyin.com",
-            "Connection": "keep-alive",
-            "sec-ch-ua": "\"Not_A Brand\";v=\"8\", \"Chromium\";v=\"120\", \"Google Chrome\";v=\"120\"",
-            "Accept": "application/json, text/plain, */*",
-            "sec-ch-ua-mobile": "?0",
-            "User-Agent": self.ua["web"],
-            "sec-ch-ua-platform": "\"Windows\"",
-            "Sec-Fetch-Site": "same-origin",
-            "Sec-Fetch-Mode": "cors",
-            "Sec-Fetch-Dest": "empty",
-            "Referer": "https://www.douyin.com/music/" + music_id,
-            "Accept-Language": "zh-CN,zh;q=0.9",
-            "Cookie": self.get_web_cookie()
-        }
-        xbogus = self.get_web_xbogus(url, self.ua["web"])
-        url += '&X-Bogus=' + xbogus['xbogus']
+        res = await page.evaluate("""() => {
+            function queryData(url) {
+               var p = new Promise(function(resolve,reject) {
+                   var e={
+                           "url":"%s",
+                           "method":"GET"
+                         };
+                    var h = new XMLHttpRequest;
+                    h.responseType = "json";
+                    h.open(e.method, e.url, true);
+                    h.setRequestHeader("Accept","application/json, text/plain, */*");
+                    h.setRequestHeader("Host","www.douyin.com"); 
+                    h.setRequestHeader("Referer","https://www.douyin.com/music/%s"); 
+                    h.setRequestHeader("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36");   
+                    h.onreadystatechange = function() {
+                         if(h.readyState === 4 && h.status === 200) {
+                              resolve(h.response);
+                         } else {}
+                    };
+                    h.send(null);
+                    });
+                    return p;
+                }
+            var p1 = queryData();
+            res = Promise.all([p1]).then(function(result){
+                    return result
+            })
+            return res
+        }""" % (url, music_id))
+
         try:
-            res = requests.get(url, headers=headers).json()
+            res = res[0]
+
             verify_reason_values = []
             video_duration_values = []
             remove_custom_verify = []
@@ -355,13 +337,14 @@ class douyin(object):
             logging.info(e)
             return 1, "1"
 
-    def get_filter(self):
+    async def get_filter(self):
         """
         使用pands过滤数据
         :return:
         """
         while True:
-            jd, res = self.get_douyin_music_video()
+            async with async_playwright() as p:
+                jd, res = await self.get_douyin_music_video(p)
             if not isinstance(jd, int):
                 dd = jd.sample()
                 # print(dd.index.values)
@@ -432,7 +415,7 @@ class douyin(object):
             print("处理后md5：", get_file_md5(self.video_path))
             print("视频处理完毕")
             with open(os.path.join(self.path, "video_id_list.txt"), encoding="utf-8", mode="w") as f:
-                f.write(",".join(self.video_ids))
+                f.write(",".join(self.video_ids)[1:])
         return 0
 
 
@@ -447,26 +430,20 @@ class upload_douyin(douyin):
         self.timeout = timeout * 1000
         self.cookie_file = cookie_file
 
-    async def upload(self, playwright: Playwright) -> None:
-
-        browser = await playwright.chromium.launch(channel="chrome", headless=False)
-
-        context = await browser.new_context(storage_state=self.cookie_file, user_agent=self.ua["web"])
-
-        page = await context.new_page()
-        await page.add_init_script("Object.defineProperties(navigator, {webdriver:{get:()=>undefined}});")
+    async def upload(self, p: Playwright) -> None:
+        page = await self.playwright_init(p, cookie_path=self.cookie_file)
+        await page.add_init_script(path="stealth.min.js")
         await page.goto("https://creator.douyin.com/creator-micro/content/upload")
         print("正在判断账号是否登录")
         if "/creator-micro/" not in page.url:
             print("账号未登录")
             logging.info("账号未登录")
             return
-
         print("账号已登录")
         try:
             msg = ["视频下载成功，等待发布", "视频下载失败", "音乐榜单获取失败"]
             # 等待视频处理完毕
-            code = self.get_douyin_music()
+            code = await self.get_douyin_music()
             logging.info(msg[code])
             if code == 0:
                 video_desc_list = self.video_path.split("\\")
@@ -629,8 +606,6 @@ class upload_douyin(douyin):
             print("发布视频失败，cookie已失效，请登录后再试\n", e)
             logging.info("发布视频失败，cookie已失效，请登录后再试")
         # await context.storage_state()
-        await context.close()
-        await browser.close()
 
     async def main(self):
         async with async_playwright() as playwright:
@@ -673,5 +648,5 @@ if __name__ == '__main__':
     run()
     # print("任务开始运行")
     # scheduler = BlockingScheduler(timezone='Asia/Shanghai')
-    # scheduler.add_job(run, 'interval', minutes=60, misfire_grace_time=900)
+    # scheduler.add_job(run, 'interval', minutes=120, misfire_grace_time=900)
     # scheduler.start()

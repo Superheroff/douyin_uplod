@@ -1,0 +1,20 @@
+[2024-04-06 13:33:36,838]-main.py-432-MainThread-账号未登录
+[2024-04-06 13:35:17,065]-main.py-430-MainThread-账号未登录
+[2024-04-06 13:35:33,700]-main.py-430-MainThread-账号未登录
+[2024-04-06 13:47:37,801]-main.py-430-MainThread-账号未登录
+[2024-04-06 14:10:20,096]-main.py-441-MainThread-账号未登录
+[2024-04-06 14:13:03,225]-main.py-441-MainThread-账号未登录
+[2024-04-06 14:13:35,409]-main.py-441-MainThread-账号未登录
+[2024-04-06 14:23:53,581]-warnings.py-109-MainThread-D:\编程\python\douyin\发布小程序\douyin_uplod\main.py:225: RuntimeWarning: coroutine 'douyin.get_filter' was never awaited
+  return 2
+
+[2024-04-06 14:23:53,582]-main.py-448-MainThread-音乐榜单获取失败
+[2024-04-06 14:24:51,154]-warnings.py-109-MainThread-D:\编程\python\douyin\发布小程序\douyin_uplod\main.py:225: RuntimeWarning: coroutine 'douyin.get_filter' was never awaited
+  return 2
+
+[2024-04-06 14:24:51,154]-main.py-448-MainThread-音乐榜单获取失败
+[2024-04-06 14:25:53,971]-main.py-447-MainThread-音乐榜单获取失败
+[2024-04-06 14:27:56,160]-main.py-607-MainThread-发布视频失败，cookie已失效，请登录后再试
+[2024-04-06 14:27:56,429]-warnings.py-109-MainThread-sys:1: RuntimeWarning: coroutine 'douyin.get_douyin_music' was never awaited
+
+[2024-04-06 14:30:12,248]-main.py-447-MainThread-视频下载成功，等待发布

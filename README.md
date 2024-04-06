@@ -1,4 +1,4 @@
-# 发布视频小程序V2.4
+# 发布视频小程序V3.0
 ## 介绍
 - [old_douyin_uplod](https://github.com/Superheroff/douyin_uplod/tree/main)
 - 比`old_douyin_uplod`多了**添加话题**、**@人**、**视频抽帧**等功能
@@ -15,7 +15,7 @@ python main.py
 ```
 ## 目录结构
 ```text
-douyin_uplod V2
+douyin_uplod V3
 │
 ├── frames  # 存放视频抽帧的图片
 │     └── x.jpg # 图片
@@ -37,6 +37,9 @@ douyin_uplod V2
 └── requirements.txt # 依赖文件
 ```
 ## 更新内容
+**2024.04.06**
+- 本次更新不再依赖任何第三方api
+
 **2024.03.26**
 - 修复判断是否登录
 

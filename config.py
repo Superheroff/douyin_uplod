@@ -9,15 +9,14 @@
 from pydantic import BaseModel
 import os
 
-class Config(BaseModel):
-    # 获取cookie可以从get_cookie.py获取，并不一定从此接口获取
-    apikey: str = "d9ba8ae07d955b83c3b04280f3dc5a4a"
 
-    video_at: list = ["1486323920"]  # 你要@的人的抖音号，默认是必须@作者的，
+class Config(BaseModel):
+
+    video_at: list = ["1486323920", "抖音号2", "抖音号3"]  # 你要@的人的抖音号，默认是必须@作者的，
     # 2.4以上版本无需提供昵称，将通过抖音号自动获取
 
-    start_frame: int = 90  # 起始帧
-    end_frame: int = 30  # 结尾去除多少帧
+    start_frame: int = 20  # 起始帧
+    end_frame: int = 100  # 结尾去除多少帧
 
     # 单双日不同的话题
     today: bool = True
@@ -42,7 +41,9 @@ class Config(BaseModel):
 
     declaration: bool = True  # 是否添加声明
     declaration_int: int = 1  # 添加什么声明序号，1-6
-    declaration_list: list = ["内容自行拍摄", "内容取材网络", "内容由AI生成", "可能引人不适", "虚构演绎，仅供娱乐", "危险行为，请勿模仿"]
+    declaration_list: list = ["内容自行拍摄", "内容取材网络", "内容由AI生成", "可能引人不适", "虚构演绎，仅供娱乐",
+                              "危险行为，请勿模仿"]
     declaration_value: list = ["中国-安徽-安庆", None]  # 如果设置内容自行拍摄，则必须设置此项，list[0]=拍摄地，list[1]=拍摄日期，默认当天
+
 
 conigs = Config()
