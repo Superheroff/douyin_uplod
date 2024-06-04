@@ -140,6 +140,6 @@ Timeout 30000ms exceeded.
 ```
 
 # 声明
-- qq交流群：916790180
+- 学习交流群：816017833
 - 有任何问题请到[issues](https://github.com/Superheroff/douyin_uplod/issues)提交
 - 本源码只是出于学习交流的目的，使用者造成的任何后果均与作者无关
