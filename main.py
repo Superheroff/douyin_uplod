@@ -597,8 +597,6 @@ class upload_douyin(douyin):
                     if is_while:
                         break
 
-
-
         except Exception as e:
             print("发布视频失败，cookie已失效，请登录后再试\n", e)
             logging.info("发布视频失败，cookie已失效，请登录后再试")

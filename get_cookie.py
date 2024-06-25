@@ -40,23 +40,28 @@ class creator_douyin():
         await page.locator(
             "div.banner-div:nth-child(1) > div:nth-child(1) > img:nth-child(1)").click()
 
-        await page.locator("#semiTabphone").click()
+        await page.goto("https://creator.douyin.com/")
+
+        await page.locator(".agreement-FCwv7r > img:nth-child(1)").click()
 
         await page.locator('#number').fill(self.phone)
 
-        await page.locator(".agreement-yykwUw > img:nth-child(1)").click()
         try:
             await page.wait_for_url("https://creator.douyin.com/creator-micro/home", timeout=self.timeout)
             cookies = await context.cookies()
             cookie_txt = ''
             for i in cookies:
                 cookie_txt += i.get('name') + '=' + i.get('value') + '; '
-
-            with open(os.path.join(self.path, "cookie", self.phone + ".txt"), mode="w") as f:
-                f.write(cookie_txt)
-
-            await context.storage_state(path=os.path.join(self.path, "cookie", self.desc))
-            print(self.phone + " ——> 登录成功")
+            # with open(os.path.join(self.path, "cookie", self.phone + ".txt"), mode="w") as f:
+            #     f.write(cookie_txt)
+            try:
+                cookie_txt.index("sessionid")
+                print(self.phone + " ——> 登录成功")
+                with open(os.path.join(self.path, "cookie", self.phone + ".txt"), mode="w") as f:
+                    f.write(cookie_txt)
+                await context.storage_state(path=os.path.join(self.path, "cookie", self.desc))
+            except ValueError:
+                print(self.phone + " ——> 登录失败，本次操作不保存cookie")
         except Exception as e:
             print(self.phone + " ——> 登录失败，本次操作不保存cookie", e)
         finally:
