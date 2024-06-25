@@ -1,18 +1,21 @@
-# 发布视频小程序V3.0
+# 发布视频小程序V3.1
 ## 介绍
 - [old_douyin_uplod](https://github.com/Superheroff/douyin_uplod/tree/main)
 - 比`old_douyin_uplod`多了**添加话题**、**@人**、**视频抽帧**等功能
 
-## 如何运行
-- 使用git clone把项目下载到本地
-- 依次运行下面命令，首次使用需要先运行`get_cookie.py`
-- 注意：只提供昵称的@并不准确，加抖音号才能完全准确
+## 如何使用
+1. 把项目下载到本地
+2. 依次运行下面命令
+    ```shell
+    git clone https://github.com/Superheroff/douyin_uplod.git
+    pip install -r requirements.txt -i https://mirrors.bfsu.edu.cn/pypi/web/simple/
+    playwright install chromium
+    python main.py
+    ```
+- **注意①：只提供昵称的@并不准确，加抖音号才能完全准确**
+- **注意②：首次使用需要先运行`get_cookie.py`登录**
 
-```shell
-pip install -r requirements.txt -i https://mirrors.bfsu.edu.cn/pypi/web/simple/
-playwright install chromium
-python main.py
-```
+
 ## 目录结构
 ```text
 douyin_uplod V3
@@ -37,6 +40,9 @@ douyin_uplod V3
 └── requirements.txt # 依赖文件
 ```
 ## 更新内容
+**2024.06.25**
+- 修复登录
+
 **2024.04.06**
 - 本次更新不再依赖任何第三方api
 
@@ -140,6 +146,6 @@ Timeout 30000ms exceeded.
 ```
 
 # 声明
-- qq交流群：916790180
+- qq交流群：816017833
 - 有任何问题请到[issues](https://github.com/Superheroff/douyin_uplod/issues)提交
 - 本源码只是出于学习交流的目的，使用者造成的任何后果均与作者无关
