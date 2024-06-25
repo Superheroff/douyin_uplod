@@ -33,12 +33,8 @@ class creator_douyin():
         context = await browser.new_context()
 
         page = await context.new_page()
-        await page.add_init_script("Object.defineProperties(navigator, {webdriver:{get:()=>undefined}});")
 
-        await page.goto("https://creator.douyin.com/")
-
-        await page.locator(
-            "div.banner-div:nth-child(1) > div:nth-child(1) > img:nth-child(1)").click()
+        await page.add_init_script("Object.defineProperties(navigator, {webdriver:{get:()=>false}});")
 
         await page.goto("https://creator.douyin.com/")
 
@@ -52,13 +48,11 @@ class creator_douyin():
             cookie_txt = ''
             for i in cookies:
                 cookie_txt += i.get('name') + '=' + i.get('value') + '; '
-            # with open(os.path.join(self.path, "cookie", self.phone + ".txt"), mode="w") as f:
-            #     f.write(cookie_txt)
             try:
                 cookie_txt.index("sessionid")
                 print(self.phone + " ——> 登录成功")
-                with open(os.path.join(self.path, "cookie", self.phone + ".txt"), mode="w") as f:
-                    f.write(cookie_txt)
+                # with open(os.path.join(self.path, "cookie", self.phone + ".txt"), mode="w") as f:
+                #     f.write(cookie_txt)
                 await context.storage_state(path=os.path.join(self.path, "cookie", self.desc))
             except ValueError:
                 print(self.phone + " ——> 登录失败，本次操作不保存cookie")
