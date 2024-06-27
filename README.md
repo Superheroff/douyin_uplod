@@ -1,4 +1,4 @@
-# 发布视频小程序V3.1
+# 发布视频小程序V3.2
 ## 介绍
 - [old_douyin_uplod](https://github.com/Superheroff/douyin_uplod/tree/main)
 - 比`old_douyin_uplod`多了**添加话题**、**@人**、**视频抽帧**等功能
