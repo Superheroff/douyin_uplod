@@ -399,7 +399,8 @@ class douyin():
         for at in conigs.video_at:
             nickname += f"@{self.get_web_userinfo(at)} "
         desc += nickname + self.title
-        reb = requests.get(uri, headers={"User-Agent": self.ua["web"]}).content
+        headers = {"User-Agent": self.ua["web"], "Referer": uri}
+        reb = requests.get(uri, headers=headers).content
         self.video_path = os.path.join(conigs.video_path, desc + ".mp4")
         with open(self.video_path, mode="wb") as f:
             f.write(reb)
@@ -603,7 +604,6 @@ class upload_douyin(douyin):
         finally:
             delete_all_files(os.path.join(self.path, "frames"))
             delete_all_files(os.path.join(self.path, "video"))
-        # await context.storage_state()
 
     async def main(self):
         async with async_playwright() as playwright:
